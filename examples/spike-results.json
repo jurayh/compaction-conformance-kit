@@ -16,7 +16,9 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "cliff_round": 1,
+        "final_survival": 0.0
       },
       {
         "type": "hard_constraint",
@@ -28,7 +30,9 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "cliff_round": 1,
+        "final_survival": 0.0
       },
       {
         "type": "fact",
@@ -40,7 +44,9 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "cliff_round": 1,
+        "final_survival": 0.0
       },
       {
         "type": "goal_state",
@@ -52,7 +58,9 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "cliff_round": 2,
+        "final_survival": 0.0
       },
       {
         "type": "user_preference",
@@ -64,7 +72,9 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "cliff_round": 1,
+        "final_survival": 0.0
       }
     ]
   },
@@ -85,7 +95,9 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "cliff_round": 1,
+        "final_survival": 0.0
       },
       {
         "type": "hard_constraint",
@@ -97,7 +109,9 @@
           0.25,
           0.25,
           0.25
-        ]
+        ],
+        "cliff_round": 1,
+        "final_survival": 0.25
       },
       {
         "type": "fact",
@@ -109,7 +123,9 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "cliff_round": 1,
+        "final_survival": 0.0
       },
       {
         "type": "goal_state",
@@ -121,7 +137,9 @@
           0.25,
           0.25,
           0.25
-        ]
+        ],
+        "cliff_round": 1,
+        "final_survival": 0.25
       },
       {
         "type": "user_preference",
@@ -133,7 +151,9 @@
           0.25,
           0.25,
           0.25
-        ]
+        ],
+        "cliff_round": 1,
+        "final_survival": 0.25
       }
     ]
   },
@@ -154,7 +174,9 @@
           1.0,
           1.0,
           1.0
-        ]
+        ],
+        "cliff_round": null,
+        "final_survival": 1.0
       },
       {
         "type": "hard_constraint",
@@ -166,7 +188,9 @@
           1.0,
           1.0,
           1.0
-        ]
+        ],
+        "cliff_round": null,
+        "final_survival": 1.0
       },
       {
         "type": "fact",
@@ -178,7 +202,9 @@
           1.0,
           1.0,
           1.0
-        ]
+        ],
+        "cliff_round": null,
+        "final_survival": 1.0
       },
       {
         "type": "goal_state",
@@ -190,7 +216,9 @@
           1.0,
           1.0,
           1.0
-        ]
+        ],
+        "cliff_round": null,
+        "final_survival": 1.0
       },
       {
         "type": "user_preference",
@@ -202,7 +230,9 @@
           1.0,
           1.0,
           1.0
-        ]
+        ],
+        "cliff_round": null,
+        "final_survival": 1.0
       }
     ]
   },

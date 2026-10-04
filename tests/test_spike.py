@@ -9,11 +9,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from compaction_kit.canaries import CanaryType, seeded_canaries
+from compaction_kit.canaries import Canary, CanaryType, seeded_canaries
+from compaction_kit.compacted import CompactedContext
 from compaction_kit.compactors import ChecklistCompactor, LossyTruncationCompactor, NaiveSummaryCompactor
+from compaction_kit.probes import ExactUseProbe
 from compaction_kit.report import build_report
-from compaction_kit.runner import run_conformance
+from compaction_kit.runner import ConformanceRun, RoundResult, run_conformance
 from compaction_kit.session import build_seeded_session
+from compaction_kit.simulated_agent import SimulatedAgent
 
 SESSION = build_seeded_session()
 ROUNDS = 5

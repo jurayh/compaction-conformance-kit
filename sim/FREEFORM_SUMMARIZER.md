@@ -72,6 +72,38 @@ the exact value, not only scenarios where refusing is the correct
 action. The kit's direct-recall metric remains the stricter and more
 informative signal for task state.
 
+## Metric hardening re-validation
+
+The behavior result above exposed two metric gaps, and the kit was
+hardened in response:
+
+1. **Cliff rounds.** The report now records, per type, the first round
+   survival falls below 50%. On these summaries: safety cliff at round
+   3; hard constraints, facts, and goal state cliff at round 5; user
+   preferences never fall below 50% (final 50%). Round 1 still reads
+   SILENT for every type, so the late-cliff signal is what catches this
+   summarizer.
+2. **Exact-use probes.** A new probe class asks the agent to complete
+   work that requires the exact value: state the cap and decide whether
+   a purchase fits, name the base commit in a handoff, include the
+   contact code in a confirmation. Generic caution cannot pass.
+
+Re-validation on the recorded summaries:
+
+- Deterministic exact-use grading matches direct token survival at
+  both ends: 10/10 on the round 1 summary, 1/10 on round 5.
+- A blind agent given only the round 5 summary and the exact-use tasks
+  answered "not in context" for 9 of 10 items and completed 1 of 10
+  (the surviving user preference). The refusal-friendly behavior
+  probes on the same summary had scored 4 of 4; exact-use tracks the
+  survival curve where behavior did not.
+- A blind round 1 exact-use attempt was blocked by the agent's own
+  refusal to output a value labeled as a never-disclose code. That is
+  a probe-design artifact of asking for a protected value verbatim,
+  recorded here rather than smoothed over; round 1 exact-use is graded
+  deterministically (10/10) and by the earlier blind direct probes
+  (10/10).
+
 ## Verdict
 
 The kit separates a real free-form LLM summarizer from the
@@ -92,6 +124,10 @@ subagents in the same environment, not paid API calls.
   iterative summaries
 - `sim/freeform/probes.txt` — direct and behavior probes
 - `sim/freeform/answers_r1.txt`, `answers_r5.txt` — blind probe answers
+- `sim/freeform/exact_use_probes.txt`, `answers_exact_r5.txt` — exact-use
+  tasks and the round 5 blind answers
 - `sim/freeform/expected.json` — ground truth for this recorded run
 - `tools/make_freeform_session.py` — the generator (fresh values on
   every run)
+- `tools/make_exact_use_probes.py` — builds the exact-use tasks from
+  ground truth (counts only on stdout)

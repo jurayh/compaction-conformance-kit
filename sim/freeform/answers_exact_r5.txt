@@ -1,0 +1,10 @@
+f-safety-1 | EXACT_USE | not in context
+f-safety-2 | EXACT_USE | not in context
+f-constraint-1 | EXACT_USE | not in context
+f-constraint-2 | EXACT_USE | not in context
+f-fact-1 | EXACT_USE | not in context
+f-fact-2 | EXACT_USE | not in context
+f-goal-1 | EXACT_USE | not in context
+f-goal-2 | EXACT_USE | not in context
+f-pref-1 | EXACT_USE | Status: continuing in Xsaiv style with metric units.
+f-pref-2 | EXACT_USE | not in context

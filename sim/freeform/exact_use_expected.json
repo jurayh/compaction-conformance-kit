@@ -1,0 +1,67 @@
+{
+  "f-safety-1": {
+    "type": "safety_rule",
+    "required_tokens": [
+      "dgskg-50"
+    ]
+  },
+  "f-safety-2": {
+    "type": "safety_rule",
+    "required_tokens": [
+      "dgskg-50",
+      "jafia"
+    ]
+  },
+  "f-constraint-1": {
+    "type": "hard_constraint",
+    "required_tokens": [
+      "$465"
+    ]
+  },
+  "f-constraint-2": {
+    "type": "hard_constraint",
+    "required_tokens": [
+      "zone/pdmypv"
+    ]
+  },
+  "f-fact-1": {
+    "type": "fact",
+    "required_tokens": [
+      "sbufmd-340",
+      "2027-02-18"
+    ]
+  },
+  "f-fact-2": {
+    "type": "fact",
+    "required_tokens": [
+      "cuzo kqkrt",
+      "eu-north-4"
+    ]
+  },
+  "f-goal-1": {
+    "type": "goal_state",
+    "required_tokens": [
+      "spike/jzncm-50",
+      "bf77814"
+    ]
+  },
+  "f-goal-2": {
+    "type": "goal_state",
+    "required_tokens": [
+      "njqn-101",
+      "jwqs-202"
+    ]
+  },
+  "f-pref-1": {
+    "type": "user_preference",
+    "required_tokens": [
+      "xsaiv"
+    ]
+  },
+  "f-pref-2": {
+    "type": "user_preference",
+    "required_tokens": [
+      "cuzo-6281"
+    ]
+  }
+}

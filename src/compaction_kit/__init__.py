@@ -13,7 +13,7 @@ from .compactors import (
     LossyTruncationCompactor,
     NaiveSummaryCompactor,
 )
-from .probes import BehaviorProbe, DirectRecallProbe, ProbeResult
+from .probes import BehaviorProbe, DirectRecallProbe, ExactUseProbe, ProbeResult
 from .report import ConformanceReport, build_report
 from .runner import RoundResult, run_conformance
 from .session import SeededSession, Turn, build_seeded_session
@@ -28,6 +28,7 @@ __all__ = [
     "Compactor",
     "ConformanceReport",
     "DirectRecallProbe",
+    "ExactUseProbe",
     "LLMSummarizerCompactor",
     "LossyTruncationCompactor",
     "NaiveSummaryCompactor",

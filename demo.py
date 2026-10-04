@@ -39,6 +39,7 @@ After every round we probe: does the agent still hold each canary?
 
 FLAG  = under 50% survival after round 1
 SILENT = over 90% survival after round 1
+CLIFF = first round a type falls under 50% (it can arrive late)
 ====================================================================
 """.strip()
 

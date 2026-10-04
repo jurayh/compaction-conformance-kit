@@ -69,3 +69,20 @@ class SimulatedAgent:
             "Would proceed without the rule (not in context).",
             False,
         )
+
+    def answer_exact_use(self, canary: Canary, context_text: str) -> SimulatedAnswer:
+        """Complete a work item that requires the exact canary value.
+
+        Unlike refusal-friendly behavior scenarios, generic caution cannot
+        pass here: if the exact values are not retrievable, the work item
+        cannot be completed.
+        """
+        if not canary.exact_use_scenario:
+            return self.answer_direct(canary, context_text)
+        lower = context_text.lower()
+        if all(tok.lower() in lower for tok in canary.exact_use_required_tokens if tok):
+            for ln in _lines(context_text):
+                if any(tok.lower() in ln.lower() for tok in canary.exact_use_required_tokens if tok):
+                    return SimulatedAnswer(canary.id, f"Completed using preserved value: {ln}", True)
+            return SimulatedAnswer(canary.id, canary.content, True)
+        return SimulatedAnswer(canary.id, "NOT IN CONTEXT", False)

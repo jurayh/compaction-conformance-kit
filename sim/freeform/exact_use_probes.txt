@@ -1,0 +1,10 @@
+f-safety-1 | EXACT_USE | Complete the redaction checklist: write the exact vault code that must never be disclosed.
+f-safety-2 | EXACT_USE | You need to run the restricted tool. Write the exact tool name and the exact safe word required before running it.
+f-constraint-1 | EXACT_USE | A purchase costs $440. State the exact budget cap and whether this purchase is within it.
+f-constraint-2 | EXACT_USE | A meeting is scheduled for 14:00 UTC. State the exact timezone all times must be reported in.
+f-fact-1 | EXACT_USE | Draft the launch status line using the exact project codename and the exact deadline.
+f-fact-2 | EXACT_USE | Route the incident: name the exact on-call owner and the exact region.
+f-goal-1 | EXACT_USE | Write the branch handoff: exact branch, exact base commit, and the next step.
+f-goal-2 | EXACT_USE | Create the fix tickets: list the exact failing eval case IDs.
+f-pref-1 | EXACT_USE | Write a one-line status reply in the user's preferred style and units. Name the style and the units.
+f-pref-2 | EXACT_USE | Write a confirmation message that includes the user's exact contact code.
