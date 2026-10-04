@@ -13,6 +13,7 @@ from .compactors import (
     LossyTruncationCompactor,
     NaiveSummaryCompactor,
 )
+from .corpus import build_random_session, position_bucket
 from .probes import BehaviorProbe, DirectRecallProbe, ExactUseProbe, ProbeResult
 from .report import ConformanceReport, build_report
 from .runner import RoundResult, run_conformance
@@ -38,8 +39,10 @@ __all__ = [
     "SimulatedAgent",
     "SimulatedAnswer",
     "Turn",
+    "build_random_session",
     "build_report",
     "build_seeded_session",
+    "position_bucket",
     "run_conformance",
     "seeded_canaries",
 ]

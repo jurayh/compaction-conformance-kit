@@ -169,6 +169,23 @@ from compaction_kit.compactors import LLMSummarizerCompactor
 compactor = LLMSummarizerCompactor(lambda text: call_model("Summarize...", text))
 ```
 
+## Does it generalize beyond one session?
+
+The seeded session could be a fluke, so the kit ships a randomized
+corpus generator (`build_random_session(seed)`): fresh values, shuffled
+planting positions, varied phrasing, 20 canaries per session. Across 12
+sessions x 5 rounds, checklist survival was 100% for every type in
+every seed, lossy truncation decayed to 0% on every type by round 5,
+and truncation survival by position was 0% early, 1% middle, 93% late
+at round 1, then 0% everywhere by round 5.
+
+The corpus also caught an over-preservation problem: two canaries per
+session are updates (a cap and a deadline superseded later). The
+checklist compactor held the latest value in 12/12 sessions, but also
+carried the stale value alongside it in 12/12. Preservation and update
+resolution are different axes, and both are now measured. Details:
+[sim/CORPUS.md](sim/CORPUS.md).
+
 ## The spike gate
 
 This kit exists only because it passed a kill criterion set before the
@@ -186,6 +203,7 @@ breaks the separation breaks the build.
 | --- | --- |
 | `src/compaction_kit/canaries.py` | Canary types and the seeded set |
 | `src/compaction_kit/session.py` | Scripted session with known canary positions |
+| `src/compaction_kit/corpus.py` | Randomized multi-seed session generator |
 | `src/compaction_kit/compactors.py` | The `Compactor` protocol and reference implementations |
 | `src/compaction_kit/probes.py` | Direct-recall, behavior, and exact-use probes |
 | `src/compaction_kit/simulated_agent.py` | $0 retrieval agent for probing |
@@ -196,6 +214,7 @@ breaks the separation breaks the build.
 | `SPEC.md` | Protocol specification |
 | `tests/test_spike.py` | The kill criterion as tests |
 | `tests/test_metric_hardening.py` | Cliff-round and exact-use tests |
+| `tests/test_corpus.py` | Multi-seed corpus and supersession tests |
 
 Extending it is one class at a time: a new compactor implements the
 protocol, a new probe implements `probe(canary, context_text)`.

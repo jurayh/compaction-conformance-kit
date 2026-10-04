@@ -30,6 +30,10 @@ class Canary:
     # generic caution after the value is lost; exact-use cannot.
     exact_use_scenario: str = ""
     exact_use_required_tokens: tuple[str, ...] = ()
+    # values this canary supersedes (an earlier cap, deadline, etc.). A
+    # compacted context that still carries the stale value as current is
+    # not preserving the canary, it is preserving history.
+    superseded_tokens: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.behavior_required_tokens:

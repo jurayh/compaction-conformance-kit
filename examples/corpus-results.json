@@ -1,0 +1,258 @@
+{
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "rounds": 5,
+  "by_compactor": {
+    "lossy-truncation": {
+      "round1_median_by_type": {
+        "fact": 0.375,
+        "goal_state": 0.25,
+        "hard_constraint": 0.375,
+        "safety_rule": 0.25,
+        "user_preference": 0.25
+      },
+      "round5_median_by_type": {
+        "fact": 0.0,
+        "goal_state": 0.0,
+        "hard_constraint": 0.0,
+        "safety_rule": 0.0,
+        "user_preference": 0.0
+      },
+      "round1_min_by_type": {
+        "fact": 0.0,
+        "goal_state": 0.0,
+        "hard_constraint": 0.0,
+        "safety_rule": 0.0,
+        "user_preference": 0.0
+      },
+      "cliff_rounds_by_type": {
+        "fact": [
+          1,
+          2
+        ],
+        "goal_state": [
+          1,
+          2
+        ],
+        "hard_constraint": [
+          1,
+          2
+        ],
+        "safety_rule": [
+          1,
+          2
+        ],
+        "user_preference": [
+          1,
+          2
+        ]
+      },
+      "verdict_counts_by_type": {
+        "fact": {
+          "FLAG": 6,
+          "WARN": 6
+        },
+        "goal_state": {
+          "FLAG": 8,
+          "WARN": 4
+        },
+        "hard_constraint": {
+          "WARN": 6,
+          "FLAG": 6
+        },
+        "safety_rule": {
+          "FLAG": 11,
+          "WARN": 1
+        },
+        "user_preference": {
+          "FLAG": 9,
+          "WARN": 3
+        }
+      }
+    },
+    "naive-summary": {
+      "round1_median_by_type": {
+        "fact": 0.25,
+        "goal_state": 0.125,
+        "hard_constraint": 0.125,
+        "safety_rule": 0.25,
+        "user_preference": 0.0
+      },
+      "round5_median_by_type": {
+        "fact": 0.25,
+        "goal_state": 0.125,
+        "hard_constraint": 0.125,
+        "safety_rule": 0.25,
+        "user_preference": 0.0
+      },
+      "round1_min_by_type": {
+        "fact": 0.0,
+        "goal_state": 0.0,
+        "hard_constraint": 0.0,
+        "safety_rule": 0.0,
+        "user_preference": 0.0
+      },
+      "cliff_rounds_by_type": {
+        "fact": [
+          1
+        ],
+        "goal_state": [
+          1
+        ],
+        "hard_constraint": [
+          1
+        ],
+        "safety_rule": [
+          1
+        ],
+        "user_preference": [
+          1
+        ]
+      },
+      "verdict_counts_by_type": {
+        "fact": {
+          "FLAG": 10,
+          "WARN": 2
+        },
+        "goal_state": {
+          "FLAG": 11,
+          "WARN": 1
+        },
+        "hard_constraint": {
+          "FLAG": 11,
+          "WARN": 1
+        },
+        "safety_rule": {
+          "FLAG": 11,
+          "WARN": 1
+        },
+        "user_preference": {
+          "FLAG": 12
+        }
+      }
+    },
+    "checklist-carrying": {
+      "round1_median_by_type": {
+        "fact": 1.0,
+        "goal_state": 1.0,
+        "hard_constraint": 1.0,
+        "safety_rule": 1.0,
+        "user_preference": 1.0
+      },
+      "round5_median_by_type": {
+        "fact": 1.0,
+        "goal_state": 1.0,
+        "hard_constraint": 1.0,
+        "safety_rule": 1.0,
+        "user_preference": 1.0
+      },
+      "round1_min_by_type": {
+        "fact": 1.0,
+        "goal_state": 1.0,
+        "hard_constraint": 1.0,
+        "safety_rule": 1.0,
+        "user_preference": 1.0
+      },
+      "cliff_rounds_by_type": {
+        "fact": [],
+        "goal_state": [],
+        "hard_constraint": [],
+        "safety_rule": [],
+        "user_preference": []
+      },
+      "verdict_counts_by_type": {
+        "fact": {
+          "SILENT": 12
+        },
+        "goal_state": {
+          "SILENT": 12
+        },
+        "hard_constraint": {
+          "SILENT": 12
+        },
+        "safety_rule": {
+          "SILENT": 12
+        },
+        "user_preference": {
+          "SILENT": 12
+        }
+      }
+    }
+  },
+  "position_survival": {
+    "checklist-carrying|early|r1": 1.0,
+    "checklist-carrying|early|r5": 1.0,
+    "checklist-carrying|late|r1": 1.0,
+    "checklist-carrying|late|r5": 1.0,
+    "checklist-carrying|middle|r1": 1.0,
+    "checklist-carrying|middle|r5": 1.0,
+    "lossy-truncation|early|r1": 0.0,
+    "lossy-truncation|early|r5": 0.0,
+    "lossy-truncation|late|r1": 0.931,
+    "lossy-truncation|late|r5": 0.0,
+    "lossy-truncation|middle|r1": 0.012,
+    "lossy-truncation|middle|r5": 0.0,
+    "naive-summary|early|r1": 0.0,
+    "naive-summary|early|r5": 0.0,
+    "naive-summary|late|r1": 0.5,
+    "naive-summary|late|r5": 0.5,
+    "naive-summary|middle|r1": 0.0,
+    "naive-summary|middle|r5": 0.0
+  },
+  "supersession": {
+    "checklist-carrying|r-constraint-1": {
+      "sessions": 12,
+      "latest_held": 12,
+      "stale_present": 12,
+      "both_present": 12,
+      "stale_only": 0
+    },
+    "checklist-carrying|r-fact-1": {
+      "sessions": 12,
+      "latest_held": 12,
+      "stale_present": 12,
+      "both_present": 12,
+      "stale_only": 0
+    },
+    "lossy-truncation|r-constraint-1": {
+      "sessions": 12,
+      "latest_held": 0,
+      "stale_present": 0,
+      "both_present": 0,
+      "stale_only": 0
+    },
+    "lossy-truncation|r-fact-1": {
+      "sessions": 12,
+      "latest_held": 0,
+      "stale_present": 0,
+      "both_present": 0,
+      "stale_only": 0
+    },
+    "naive-summary|r-constraint-1": {
+      "sessions": 12,
+      "latest_held": 0,
+      "stale_present": 0,
+      "both_present": 0,
+      "stale_only": 0
+    },
+    "naive-summary|r-fact-1": {
+      "sessions": 12,
+      "latest_held": 2,
+      "stale_present": 2,
+      "both_present": 2,
+      "stale_only": 0
+    }
+  }
+}

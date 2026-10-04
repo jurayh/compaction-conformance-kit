@@ -12,6 +12,10 @@
   reported as a single aggregate number.
 - **SeededSession** — ordered `Turn`s with `canary_positions` mapping
   canary id to turn index. Ground truth lives here, not in the compactor.
+  `build_random_session(seed)` generates randomized sessions (values,
+  positions, phrasing) for corpus runs; two canaries per generated
+  session carry `superseded_tokens`, earlier values an update replaced,
+  so update resolution is measured alongside preservation.
 - **Compactor** (protocol) — `compact(turns: list[Turn], round_num) ->
   CompactedContext`. Any implementation qualifies: truncation, LLM
   summary, structured extraction, a product's real `/compact`.
