@@ -6,9 +6,18 @@ build-backend = "setuptools.build_meta"
 name = "compaction-conformance-kit"
 version = "0.1.0"
 description = "Measure what an agent's context compaction actually preserves: typed canaries, compaction rounds, per-type survival curves."
+readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
+authors = [{ name = "Yuriy H" }]
 dependencies = []
+
+[project.scripts]
+compaction-kit = "compaction_kit.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/jurayh/compaction-conformance-kit"
+Repository = "https://github.com/jurayh/compaction-conformance-kit"
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]

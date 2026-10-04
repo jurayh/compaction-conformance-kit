@@ -31,11 +31,23 @@ This kit turns that difference into a number, per type, per round.
 No API key. No model calls. $0.
 
 ```bash
+pip install compaction-conformance-kit
+compaction-kit demo
+compaction-kit report --compactor update-aware-checklist
+compaction-kit corpus --seeds 1-12
+```
+
+Or from a clone, with no API key and no model calls:
+
+```bash
 git clone https://github.com/jurayh/compaction-conformance-kit.git
 cd compaction-conformance-kit
 PYTHONPATH=src python3 demo.py
 PYTHONPATH=src python3 -m pytest tests/ -q
 ```
+
+`report` exits 1 when a compactor is flagged or hits a late cliff, so
+it can gate CI. `demo` always exits 0.
 
 The demo runs a seeded session (20 planted canaries across about 100
 turns) through three compaction implementations for five rounds each
