@@ -168,3 +168,107 @@ class ChecklistCompactor:
             round_num=round_num,
             structured=sections,
         )
+
+
+def _item_key(item: str) -> str:
+    """Identity of a typed item with volatile values masked out.
+
+    Two statements that differ only in a dollar amount, a date, or a short
+    commit hash are the same item at different times; the later one wins.
+    """
+    key = item.lower()
+    key = re.sub(r"\$\d[\d,]*", "$#", key)
+    key = re.sub(r"\b\d{4}-\d{2}-\d{2}\b", "DATE", key)
+    key = re.sub(r"\b[0-9a-f]{7}\b", "HASH", key)
+    return " ".join(key.split())
+
+
+class UpdateAwareChecklistCompactor(ChecklistCompactor):
+    """Checklist carrying with update resolution: latest value wins.
+
+    The plain checklist preserves everything, including values that were
+    later superseded. This variant keys typed items with volatile values
+    masked, so when the same item appears with a new cap or deadline,
+    only the latest statement is carried.
+    """
+
+    name = "update-aware-checklist"
+
+    def compact(self, turns: list[Turn], round_num: int = 1) -> CompactedContext:
+        text = _turns_to_text(turns)
+        raw = self._extract(text)
+        sections: dict[str, list[str]] = {}
+        for ctype, items in raw.items():
+            latest: dict[str, str] = {}
+            order: list[str] = []
+            for item in items:
+                k = _item_key(item)
+                if k in latest:
+                    order.remove(k)
+                latest[k] = item
+                order.append(k)
+            sections[ctype] = [latest[k] for k in order]
+        lines = [f"[compacted by {self.name} round {round_num}]", "PRESERVED CHECKLIST (latest value wins):"]
+        for ctype in CanaryType:
+            lines.append(f"[{ctype.value}]")
+            for item in sections[ctype.value]:
+                lines.append(f"- {item}")
+        tail = _turns_to_text(turns[-self.tail_turns :]) if turns else ""
+        lines.append("RECENT ACTIVITY:")
+        lines.append(tail[-800:])
+        return CompactedContext(
+            text="\n".join(lines),
+            compactor_name=self.name,
+            round_num=round_num,
+            structured=sections,
+        )
+
+
+class PinnedRulesCompactor:
+    """Pin safety rules and hard constraints verbatim; summarize the rest.
+
+    Models the common mitigation of keeping system-level rules outside
+    the summarizer while everything else is compacted normally.
+    """
+
+    name = "pinned-rules"
+
+    def __init__(self) -> None:
+        self._extractor = ChecklistCompactor()
+        self._summary = NaiveSummaryCompactor()
+
+    def compact(self, turns: list[Turn], round_num: int = 1) -> CompactedContext:
+        text = _turns_to_text(turns)
+        sections = self._extractor._extract(text)
+        pinned: list[str] = []
+        for ctype in (CanaryType.SAFETY_RULE, CanaryType.HARD_CONSTRAINT):
+            pinned.extend(sections[ctype.value])
+        summary = self._summary.compact(turns, round_num=round_num).text
+        lines = [f"[compacted by {self.name} round {round_num}]", "PINNED RULES (verbatim):"]
+        lines.extend(f"- {item}" for item in pinned)
+        lines.append("SUMMARY OF THE REST:")
+        lines.append(summary)
+        return CompactedContext(text="\n".join(lines), compactor_name=self.name, round_num=round_num)
+
+
+class SummaryTailCompactor:
+    """Free-form summary plus a verbatim recent tail.
+
+    Models the hybrid used by several products: summarize the old
+    context, keep the newest turns raw.
+    """
+
+    name = "summary-plus-tail"
+
+    def __init__(self, keep_fraction: float = 0.30) -> None:
+        self.keep_fraction = keep_fraction
+        self._summary = NaiveSummaryCompactor()
+
+    def compact(self, turns: list[Turn], round_num: int = 1) -> CompactedContext:
+        text = _turns_to_text(turns)
+        keep = max(1, int(len(text) * self.keep_fraction))
+        tail = text[-keep:]
+        tail = tail[tail.find("\n") + 1 :] if "\n" in tail else tail
+        summary = self._summary.compact(turns, round_num=round_num).text
+        out = f"[compacted by {self.name} round {round_num}]\n{summary}\nRAW TAIL:\n{tail}"
+        return CompactedContext(text=out, compactor_name=self.name, round_num=round_num)

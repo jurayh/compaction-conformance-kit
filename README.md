@@ -186,6 +186,17 @@ carried the stale value alongside it in 12/12. Preservation and update
 resolution are different axes, and both are now measured. Details:
 [sim/CORPUS.md](sim/CORPUS.md).
 
+## Which mitigation actually works?
+
+The same corpus scored six compactors on survival and update
+resolution. Summary-plus-tail converged to the lossy result by round 5
+(the tail gets compacted too). Pinning safety rules and constraints
+held those two types at 100% and nothing else. The plain checklist
+preserved everything, stale values included. The update-aware
+checklist, which keys typed items with values masked and keeps the
+latest statement per key, held 100% survival with stale presence at
+0/12. Details: [sim/MITIGATIONS.md](sim/MITIGATIONS.md).
+
 ## The spike gate
 
 This kit exists only because it passed a kill criterion set before the
@@ -204,7 +215,7 @@ breaks the separation breaks the build.
 | `src/compaction_kit/canaries.py` | Canary types and the seeded set |
 | `src/compaction_kit/session.py` | Scripted session with known canary positions |
 | `src/compaction_kit/corpus.py` | Randomized multi-seed session generator |
-| `src/compaction_kit/compactors.py` | The `Compactor` protocol and reference implementations |
+| `src/compaction_kit/compactors.py` | The `Compactor` protocol and reference implementations, including update-aware checklist, pinned rules, and summary-plus-tail mitigations |
 | `src/compaction_kit/probes.py` | Direct-recall, behavior, and exact-use probes |
 | `src/compaction_kit/simulated_agent.py` | $0 retrieval agent for probing |
 | `src/compaction_kit/runner.py` | Iterative rounds and survival rates |
@@ -215,6 +226,7 @@ breaks the separation breaks the build.
 | `tests/test_spike.py` | The kill criterion as tests |
 | `tests/test_metric_hardening.py` | Cliff-round and exact-use tests |
 | `tests/test_corpus.py` | Multi-seed corpus and supersession tests |
+| `tests/test_mitigations.py` | Mitigation comparison tests |
 
 Extending it is one class at a time: a new compactor implements the
 protocol, a new probe implements `probe(canary, context_text)`.

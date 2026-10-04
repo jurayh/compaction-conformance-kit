@@ -19,6 +19,9 @@
 - **Compactor** (protocol) — `compact(turns: list[Turn], round_num) ->
   CompactedContext`. Any implementation qualifies: truncation, LLM
   summary, structured extraction, a product's real `/compact`.
+  Reference implementations include lossy and structure-preserving
+  baselines plus mitigations (update-aware checklist, pinned rules,
+  summary-plus-tail) so fixes can be scored on the same axes.
 - **CompactedContext** — `text` (what the agent sees), `compactor_name`,
   `round_num`, optional `structured` sections.
 - **Probe** — `probe(canary, context_text) -> ProbeResult`.

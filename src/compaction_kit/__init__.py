@@ -12,6 +12,9 @@ from .compactors import (
     LLMSummarizerCompactor,
     LossyTruncationCompactor,
     NaiveSummaryCompactor,
+    PinnedRulesCompactor,
+    SummaryTailCompactor,
+    UpdateAwareChecklistCompactor,
 )
 from .corpus import build_random_session, position_bucket
 from .probes import BehaviorProbe, DirectRecallProbe, ExactUseProbe, ProbeResult
@@ -33,12 +36,15 @@ __all__ = [
     "LLMSummarizerCompactor",
     "LossyTruncationCompactor",
     "NaiveSummaryCompactor",
+    "PinnedRulesCompactor",
     "ProbeResult",
     "RoundResult",
     "SeededSession",
     "SimulatedAgent",
     "SimulatedAnswer",
+    "SummaryTailCompactor",
     "Turn",
+    "UpdateAwareChecklistCompactor",
     "build_random_session",
     "build_report",
     "build_seeded_session",
