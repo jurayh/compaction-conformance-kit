@@ -1,0 +1,215 @@
+{
+  "lossy-truncation": {
+    "compactor": "lossy-truncation",
+    "thresholds": {
+      "flag_below": 0.5,
+      "silent_above": 0.9
+    },
+    "findings": [
+      {
+        "type": "safety_rule",
+        "round1_survival": 0.25,
+        "verdict": "FLAG",
+        "survival_curve": [
+          0.25,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "type": "hard_constraint",
+        "round1_survival": 0.25,
+        "verdict": "FLAG",
+        "survival_curve": [
+          0.25,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "type": "fact",
+        "round1_survival": 0.25,
+        "verdict": "FLAG",
+        "survival_curve": [
+          0.25,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "type": "goal_state",
+        "round1_survival": 0.5,
+        "verdict": "WARN",
+        "survival_curve": [
+          0.5,
+          0.25,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "type": "user_preference",
+        "round1_survival": 0.25,
+        "verdict": "FLAG",
+        "survival_curve": [
+          0.25,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  "naive-summary": {
+    "compactor": "naive-summary",
+    "thresholds": {
+      "flag_below": 0.5,
+      "silent_above": 0.9
+    },
+    "findings": [
+      {
+        "type": "safety_rule",
+        "round1_survival": 0.0,
+        "verdict": "FLAG",
+        "survival_curve": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "type": "hard_constraint",
+        "round1_survival": 0.25,
+        "verdict": "FLAG",
+        "survival_curve": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ]
+      },
+      {
+        "type": "fact",
+        "round1_survival": 0.0,
+        "verdict": "FLAG",
+        "survival_curve": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "type": "goal_state",
+        "round1_survival": 0.25,
+        "verdict": "FLAG",
+        "survival_curve": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ]
+      },
+      {
+        "type": "user_preference",
+        "round1_survival": 0.25,
+        "verdict": "FLAG",
+        "survival_curve": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ]
+      }
+    ]
+  },
+  "checklist-carrying": {
+    "compactor": "checklist-carrying",
+    "thresholds": {
+      "flag_below": 0.5,
+      "silent_above": 0.9
+    },
+    "findings": [
+      {
+        "type": "safety_rule",
+        "round1_survival": 1.0,
+        "verdict": "SILENT",
+        "survival_curve": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      {
+        "type": "hard_constraint",
+        "round1_survival": 1.0,
+        "verdict": "SILENT",
+        "survival_curve": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      {
+        "type": "fact",
+        "round1_survival": 1.0,
+        "verdict": "SILENT",
+        "survival_curve": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      {
+        "type": "goal_state",
+        "round1_survival": 1.0,
+        "verdict": "SILENT",
+        "survival_curve": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      {
+        "type": "user_preference",
+        "round1_survival": 1.0,
+        "verdict": "SILENT",
+        "survival_curve": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ]
+  },
+  "_kill_criterion": {
+    "lossy_flagged_at_least_one_type": true,
+    "naive_flagged_at_least_one_type": true,
+    "checklist_silent_on_all_types": true,
+    "ordering_matches_ground_truth": true
+  }
+}

@@ -1,0 +1,24 @@
+[compacted by lossy-truncation round 1: truncated to last 30%]
+[assistant] Acknowledged.
+[user] Retry logic uses exponential backoff with jitter.
+[assistant] Acknowledged.
+[user] USER PREFERENCE: User wants answers in Hrjlw style with metric units.
+[assistant] Noted and recorded.
+[user] Reviewing the ingestion pipeline module layout.
+[assistant] Acknowledged.
+[user] Retry logic uses exponential backoff with jitter.
+[assistant] Acknowledged.
+[user] USER PREFERENCE: User's contact code is VKHE-0833. Use it in confirmations.
+[assistant] Noted and recorded.
+[user] Reviewing the ingestion pipeline module layout.
+[assistant] Acknowledged.
+[user] Retry logic uses exponential backoff with jitter.
+[assistant] Acknowledged.
+[user] Discussing caching headers for static assets.
+[assistant] Acknowledged.
+[user] Adding a smoke test for the health endpoint.
+[assistant] Acknowledged.
+[user] Renaming a helper for clarity.
+[assistant] Acknowledged.
+[user] Load test notes and dashboard review.
+[assistant] Acknowledged.

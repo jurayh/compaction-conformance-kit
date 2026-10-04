@@ -1,0 +1,2 @@
+[compacted by lossy-truncation round 5: truncated to last 30%]
+[assistant] Acknowledged.
