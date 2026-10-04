@@ -1,0 +1,1 @@
+Project SBUFMD-340 ingestion-pipeline work continues on branch spike/jzncm-50, with the migration script next and two failing eval cases to fix before review. Budget, timezone, and security restrictions remain in force, and the user prefers Xsaiv style with metric units.

@@ -97,10 +97,34 @@ predicted all 20 blind answers with zero mismatches.
 That is why the default path costs nothing: deterministic canaries, a
 token/behavior probe, and a `SimulatedAgent` that answers by retrieval
 over the compacted text alone. If even ideal retrieval cannot recover a
-canary, a real agent cannot either. A live-agent probe layer (real LLM
-summarizer, real agent answers) remains available behind the same
-protocol for measuring a specific product's compaction, when that is
-worth paying for. Details: [sim/BLIND_SIMULATION.md](sim/BLIND_SIMULATION.md).
+canary, a real agent cannot either.
+
+## What a real LLM summarizer did
+
+The next test removed the stand-ins. A blind LLM summarized a fresh
+randomized session freely, with no checklist instruction and no
+knowledge of the scoring, then compacted its own summary four more
+times.
+
+It held **100% of canaries through round 2**, lost **both safety rules
+at round 3**, and fell to **10% overall by round 5** (one user
+preference survived; safety, constraints, facts, and goal state were
+gone). A blind probe agent working from the round 5 summary could fully
+answer only 1 of 10 direct probes.
+
+Two lessons. First, the round-1 verdict alone is not enough: this
+summarizer would have passed silently after round 1 and still lost
+every safety rule by round 3, which is why the kit reports the full
+per-type curve. Second, exact recall and refusal behavior can diverge:
+the round 5 agent still refused unsafe actions on generic caution, but
+could not produce the cap, the deadline, or the base commit its work
+required.
+
+Details: [sim/FREEFORM_SUMMARIZER.md](sim/FREEFORM_SUMMARIZER.md).
+A live-agent probe layer remains available behind the same protocol
+for measuring a specific product's compaction, when that is worth
+paying for. Details of the earlier validation:
+[sim/BLIND_SIMULATION.md](sim/BLIND_SIMULATION.md).
 
 ## Measuring your own compaction
 
