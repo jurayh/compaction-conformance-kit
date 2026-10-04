@@ -4,12 +4,31 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "compaction-conformance-kit"
-version = "0.1.0"
-description = "Measure what an agent's context compaction actually preserves: typed canaries, compaction rounds, per-type survival curves."
+version = "0.1.1"
+description = "Find out what your AI agent forgets when context compaction runs: typed canaries, per-type survival curves, and cliff detection for safety rules, facts, and task state."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Yuriy H" }]
+keywords = [
+    "ai-agents",
+    "llm",
+    "context-compaction",
+    "context-window",
+    "agent-safety",
+    "evaluation",
+    "testing",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Testing",
+]
 dependencies = []
 
 [project.scripts]
@@ -18,6 +37,8 @@ compaction-kit = "compaction_kit.cli:main"
 [project.urls]
 Homepage = "https://github.com/jurayh/compaction-conformance-kit"
 Repository = "https://github.com/jurayh/compaction-conformance-kit"
+Documentation = "https://github.com/jurayh/compaction-conformance-kit/blob/main/docs/QUICKSTART.md"
+Issues = "https://github.com/jurayh/compaction-conformance-kit/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]

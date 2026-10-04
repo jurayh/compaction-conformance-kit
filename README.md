@@ -1,15 +1,59 @@
 # Compaction Conformance Kit
 
-**Measure what your agent's context compaction actually preserves.**
+[![PyPI version](https://img.shields.io/pypi/v/compaction-conformance-kit)](https://pypi.org/project/compaction-conformance-kit/)
+[![Python versions](https://img.shields.io/pypi/pyversions/compaction-conformance-kit)](https://pypi.org/project/compaction-conformance-kit/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jurayh/compaction-conformance-kit/blob/main/LICENSE)
+[![GitHub](https://img.shields.io/github/stars/jurayh/compaction-conformance-kit?style=social)](https://github.com/jurayh/compaction-conformance-kit)
 
-Compaction is where long-running agents quietly forget. A widely cited
+**Find out what your AI agent forgets when its context gets compacted.**
+
+Long-running agents do not usually fail loudly when they compact. They
+quietly lose the safety rule, the budget cap, the deadline, or the next
+step, then keep working as if those never existed. A widely cited
 measurement found a production `/compact` preserved only **53% of safety
-rules after one round and 10% after five**. The rules did not fail loudly.
-They simply were not in the context anymore, and the agent behaved as if
-they had never existed.
+rules after one round and 10% after five**.
 
-Fix-oriented compaction work exists. A framework-agnostic way to
-*measure* the loss did not. This kit is that measurement.
+This kit measures that loss before it reaches a user. It plants
+unguessable canaries (a vault code, a budget cap, a base commit, a user
+preference) at known positions in a session, runs your compaction for
+several rounds, and reports what survives, by type, per round.
+
+## Who this is for
+
+- You build agents and your framework compacts context (summaries,
+  truncation, sliding windows, memory extraction).
+- You ship a `/compact`-style feature and need a regression test for it.
+- You evaluate agent safety and want to know which rule types die first.
+- You are choosing a mitigation (checklists, pinned rules, hybrids) and
+  want evidence, not vibes.
+
+## The 30-second demo
+
+```bash
+pip install compaction-conformance-kit
+compaction-kit demo
+```
+
+No API key. No model calls. $0.
+
+What you will see: three compactors run five rounds each on the same
+seeded session. Truncation flags on safety rules in round 1. The
+update-aware checklist stays silent and loses nothing. The report looks
+like this (abbreviated):
+
+| Type | Round 1 | Curve | Verdict | Cliff |
+| --- | --- | --- | --- | --- |
+| safety_rule | 25% | 25%, 0%, 0%, 0%, 0% | FLAG | round 1 |
+| user_preference | 100% | 100% across all rounds | SILENT | none |
+
+Two more commands:
+
+```bash
+compaction-kit report --compactor update-aware-checklist   # CI gate: exit 1 on FLAG or late cliff
+compaction-kit corpus --seeds 1-12                         # randomized multi-session run, JSON
+```
+
+Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
 ## What happens when an agent forgets
 
@@ -26,18 +70,7 @@ behavior. The only difference was what compaction kept.
 
 This kit turns that difference into a number, per type, per round.
 
-## Quickstart
-
-No API key. No model calls. $0.
-
-```bash
-pip install compaction-conformance-kit
-compaction-kit demo
-compaction-kit report --compactor update-aware-checklist
-compaction-kit corpus --seeds 1-12
-```
-
-Or from a clone, with no API key and no model calls:
+## Run it from a clone
 
 ```bash
 git clone https://github.com/jurayh/compaction-conformance-kit.git
@@ -46,14 +79,12 @@ PYTHONPATH=src python3 demo.py
 PYTHONPATH=src python3 -m pytest tests/ -q
 ```
 
-`report` exits 1 when a compactor is flagged or hits a late cliff, so
-it can gate CI. `demo` always exits 0.
-
-The demo runs a seeded session (20 planted canaries across about 100
-turns) through three compaction implementations for five rounds each
-and prints a conformance report for each.
+More demos, including measuring your own compactor in about 20 lines:
+[examples/README.md](examples/README.md).
 
 ## What you get
+
+![Safety-rule survival across compaction rounds](docs/assets/safety-survival.svg)
 
 Per-type survival curves and a round-1 verdict for every canary type:
 
