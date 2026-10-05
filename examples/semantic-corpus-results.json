@@ -1,0 +1,460 @@
+{
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "rounds": 5,
+  "by_compactor": {
+    "lossy-truncation": {
+      "conflicts": {
+        "s-branch": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-budget": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-codename": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-deadline": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-oncall": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-style": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-timezone": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-vault": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        }
+      },
+      "conflict_totals": {
+        "n": 64,
+        "latest": 0,
+        "resolved": 0,
+        "both": 0,
+        "stale_only": 0
+      },
+      "distinct_pairs": {
+        "d-launch-deadline+d-docs-deadline": {
+          "n": 8,
+          "both_held": 0
+        },
+        "d-oncall+d-reviewer": {
+          "n": 8,
+          "both_held": 0
+        },
+        "d-project-budget+d-travel-budget": {
+          "n": 8,
+          "both_held": 0
+        }
+      }
+    },
+    "naive-summary": {
+      "conflicts": {
+        "s-branch": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "s-budget": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-codename": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-deadline": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-oncall": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-style": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "s-timezone": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-vault": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        }
+      },
+      "conflict_totals": {
+        "n": 64,
+        "latest": 24,
+        "resolved": 24,
+        "both": 0,
+        "stale_only": 0
+      },
+      "distinct_pairs": {
+        "d-launch-deadline+d-docs-deadline": {
+          "n": 8,
+          "both_held": 0
+        },
+        "d-oncall+d-reviewer": {
+          "n": 8,
+          "both_held": 0
+        },
+        "d-project-budget+d-travel-budget": {
+          "n": 8,
+          "both_held": 0
+        }
+      }
+    },
+    "pinned-rules": {
+      "conflicts": {
+        "s-branch": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "s-budget": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-codename": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-deadline": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-oncall": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-style": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "s-timezone": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-vault": {
+          "n": 8,
+          "latest": 8,
+          "stale": 8,
+          "both": 8,
+          "stale_only": 0,
+          "resolved": 0
+        }
+      },
+      "conflict_totals": {
+        "n": 64,
+        "latest": 24,
+        "resolved": 16,
+        "both": 8,
+        "stale_only": 16
+      },
+      "distinct_pairs": {
+        "d-launch-deadline+d-docs-deadline": {
+          "n": 8,
+          "both_held": 0
+        },
+        "d-oncall+d-reviewer": {
+          "n": 8,
+          "both_held": 0
+        },
+        "d-project-budget+d-travel-budget": {
+          "n": 8,
+          "both_held": 8
+        }
+      }
+    },
+    "checklist-carrying": {
+      "conflicts": {
+        "s-branch": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-budget": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-codename": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-deadline": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-oncall": {
+          "n": 8,
+          "latest": 8,
+          "stale": 8,
+          "both": 8,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-style": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-timezone": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-vault": {
+          "n": 8,
+          "latest": 8,
+          "stale": 8,
+          "both": 8,
+          "stale_only": 0,
+          "resolved": 0
+        }
+      },
+      "conflict_totals": {
+        "n": 64,
+        "latest": 16,
+        "resolved": 0,
+        "both": 16,
+        "stale_only": 48
+      },
+      "distinct_pairs": {
+        "d-launch-deadline+d-docs-deadline": {
+          "n": 8,
+          "both_held": 8
+        },
+        "d-oncall+d-reviewer": {
+          "n": 8,
+          "both_held": 8
+        },
+        "d-project-budget+d-travel-budget": {
+          "n": 8,
+          "both_held": 8
+        }
+      }
+    },
+    "update-aware-checklist": {
+      "conflicts": {
+        "s-branch": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-budget": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-codename": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-deadline": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-oncall": {
+          "n": 8,
+          "latest": 8,
+          "stale": 8,
+          "both": 8,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "s-style": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-timezone": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "s-vault": {
+          "n": 8,
+          "latest": 8,
+          "stale": 8,
+          "both": 8,
+          "stale_only": 0,
+          "resolved": 0
+        }
+      },
+      "conflict_totals": {
+        "n": 64,
+        "latest": 16,
+        "resolved": 0,
+        "both": 16,
+        "stale_only": 40
+      },
+      "distinct_pairs": {
+        "d-launch-deadline+d-docs-deadline": {
+          "n": 8,
+          "both_held": 8
+        },
+        "d-oncall+d-reviewer": {
+          "n": 8,
+          "both_held": 8
+        },
+        "d-project-budget+d-travel-budget": {
+          "n": 8,
+          "both_held": 8
+        }
+      }
+    }
+  }
+}

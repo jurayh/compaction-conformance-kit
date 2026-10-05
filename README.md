@@ -240,6 +240,17 @@ checklist, which keys typed items with values masked and keeps the
 latest statement per key, held 100% survival with stale presence at
 0/12. Details: [sim/MITIGATIONS.md](sim/MITIGATIONS.md).
 
+## The semantic-conflict corpus
+
+Re-stated updates are the easy case. The semantic corpus
+(`build_semantic_session(seed)`) plants paraphrased updates ("keep
+project spend under five hundred dollars" superseding a "$800 budget
+cap") plus distinct near-duplicates that must both survive (project vs
+travel budget). Across 8 seeds x 5 rounds, no current compactor
+resolves the semantic conflicts: the checklist preserves every distinct
+pair but misses most paraphrased updates, and value-masked keying
+resolves 0/64. Details: [sim/SEMANTIC_CORPUS.md](sim/SEMANTIC_CORPUS.md).
+
 ## The spike gate
 
 This kit exists only because it passed a kill criterion set before the
@@ -258,6 +269,7 @@ breaks the separation breaks the build.
 | `src/compaction_kit/canaries.py` | Canary types and the seeded set |
 | `src/compaction_kit/session.py` | Scripted session with known canary positions |
 | `src/compaction_kit/corpus.py` | Randomized multi-seed session generator |
+| `src/compaction_kit/semantic_corpus.py` | Paraphrased-update conflicts and distinct near-duplicate items |
 | `src/compaction_kit/compactors.py` | The `Compactor` protocol and reference implementations, including update-aware checklist, pinned rules, and summary-plus-tail mitigations |
 | `src/compaction_kit/probes.py` | Direct-recall, behavior, and exact-use probes |
 | `src/compaction_kit/simulated_agent.py` | $0 retrieval agent for probing |
@@ -270,6 +282,7 @@ breaks the separation breaks the build.
 | `tests/test_metric_hardening.py` | Cliff-round and exact-use tests |
 | `tests/test_corpus.py` | Multi-seed corpus and supersession tests |
 | `tests/test_mitigations.py` | Mitigation comparison tests |
+| `tests/test_semantic_corpus.py` | Semantic-conflict corpus tests (current failure encoded as diagnostic) |
 
 Extending it is one class at a time: a new compactor implements the
 protocol, a new probe implements `probe(canary, context_text)`.

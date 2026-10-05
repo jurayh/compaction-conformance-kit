@@ -16,6 +16,11 @@
   positions, phrasing) for corpus runs; two canaries per generated
   session carry `superseded_tokens`, earlier values an update replaced,
   so update resolution is measured alongside preservation.
+  `build_semantic_session(seed)` generates semantic-conflict sessions:
+  paraphrased updates supersede earlier statements in different words,
+  and distinct near-duplicate items (same vocabulary, different scope)
+  must both survive, so semantic resolution and false merging are
+  measured separately.
 - **Compactor** (protocol) — `compact(turns: list[Turn], round_num) ->
   CompactedContext`. Any implementation qualifies: truncation, LLM
   summary, structured extraction, a product's real `/compact`.

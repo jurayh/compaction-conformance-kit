@@ -22,6 +22,7 @@ Every demo runs with no API key and no model calls.
 | `spike-results.json` | The three seeded reports plus kill-criterion checks, as JSON |
 | `corpus-results.json` | 12-seed corpus aggregates: survival, cliffs, position effect, supersession |
 | `mitigations-results.json` | Six-compactor mitigation comparison aggregates |
+| `semantic-corpus-results.json` | Semantic-conflict corpus: paraphrased updates, stale-carried, distinct-pair preservation |
 
 ## Longer write-ups
 
@@ -35,3 +36,5 @@ Every demo runs with no API key and no model calls.
   the over-preservation (stale value) problem.
 - [../sim/MITIGATIONS.md](../sim/MITIGATIONS.md) — which mitigation
   actually works: update-aware checklist wins on both axes.
+- [../sim/SEMANTIC_CORPUS.md](../sim/SEMANTIC_CORPUS.md) — paraphrased
+  updates defeat every current compactor; the next open problem.
