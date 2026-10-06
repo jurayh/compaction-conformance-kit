@@ -295,10 +295,9 @@ protocol, a new probe implements `probe(canary, context_text)`.
 
 ## Status
 
-v0.1 spike, validated and pushed for review. Python 3.11+, zero
-dependencies, zero model spend for the default path. MIT license.
-The semantic resolver is on `main` ahead of the next package release;
-PyPI remains at 0.1.1.
+v0.2 release. Python 3.11+, zero dependencies, zero model spend for
+the default path. MIT license. This release adds the semantic update
+resolver and the held-out semantic-conflict corpus.
 
 Not a compaction fix. A measurement. Fixes are easier to trust once
 something independent can say what they preserve, and what they lose.
