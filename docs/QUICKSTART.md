@@ -41,16 +41,31 @@ Twelve randomized sessions (fresh values, shuffled positions), JSON
 medians out. If a compactor only survives the seeded session, this is
 where it shows.
 
-## 5. Measure your own compaction
+## 5. Compare at a fixed budget
+
+```bash
+compaction-kit benchmark --budgets 10%,20%,30%
+```
+
+Survival without a size limit is gameable, so the benchmark caps
+every compactor's output at a fixed fraction of the original
+transcript and ranks what survives at that size.
+
+## 6. Measure your own compaction
 
 Implement one method:
 
 ```python
 class MyCompactor:
     name = "my-compaction"
-    def compact(self, turns, round_num=1):
+    def compact(self, turns, round_num=1, budget_chars=None):
         ...  # return CompactedContext(text=..., compactor_name=..., round_num=...)
 ```
+
+Accepting the optional `budget_chars` keyword makes your compactor
+eligible for the budget benchmark: when it is passed, that round's
+output must fit within it. Older two-argument implementations still
+work with `demo`, `report`, and `corpus`.
 
 Runnable version: [../examples/measure_your_compactor.py](../examples/measure_your_compactor.py).
 Swap the toy summarizer for your LLM call or your framework's compact

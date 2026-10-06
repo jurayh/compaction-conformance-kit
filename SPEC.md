@@ -29,6 +29,14 @@
   baselines plus mitigations (update-aware checklist, semantic
   checklist, pinned rules, summary-plus-tail) so fixes can be scored
   on the same axes.
+- **Budget** (optional protocol extension) — a compactor may accept
+  `budget_chars: int` in `compact()`: a hard output-size cap in
+  characters for that round. In benchmark runs the cap is a fixed
+  fraction of the original transcript and stays constant across
+  rounds. Compactors that do not accept the keyword still run; their
+  output is measured and reported as non-compliant when it exceeds
+  the cap. The benchmark never truncates output on a compactor's
+  behalf.
 - **CompactedContext** — `text` (what the agent sees), `compactor_name`,
   `round_num`, optional `structured` sections.
 - **Probe** — `probe(canary, context_text) -> ProbeResult`.

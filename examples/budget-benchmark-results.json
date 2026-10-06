@@ -1,0 +1,924 @@
+{
+  "budgets": [
+    0.1,
+    0.2,
+    0.3
+  ],
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "rounds": 5,
+  "budget_unit": "characters, fraction of original transcript, fixed across rounds",
+  "entries": [
+    {
+      "compactor": "semantic-checklist",
+      "budget_fraction": 0.1,
+      "budget_compliant": true,
+      "max_output_to_budget": 1.0,
+      "mean_final_output_ratio": 0.098,
+      "runtime_seconds": 1.58,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.4,
+        "final_median_by_type": {
+          "fact": 0.0,
+          "goal_state": 0.0,
+          "hard_constraint": 1.0,
+          "safety_rule": 1.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 8,
+          "resolved": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 72,
+          "resolved": 72,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "pairs": 48,
+          "pairs_both_held": 48
+        },
+        "resolved_rate": 0.562,
+        "distinct_pair_rate": 1.0
+      },
+      "rank": 1
+    },
+    {
+      "compactor": "update-aware-checklist",
+      "budget_fraction": 0.1,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.998,
+      "mean_final_output_ratio": 0.097,
+      "runtime_seconds": 0.039,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.4,
+        "final_median_by_type": {
+          "fact": 0.0,
+          "goal_state": 0.0,
+          "hard_constraint": 1.0,
+          "safety_rule": 1.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 8,
+          "resolved": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 8,
+          "resolved": 0,
+          "stale": 96,
+          "both": 8,
+          "stale_only": 88,
+          "pairs": 48,
+          "pairs_both_held": 24
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 0.5
+      },
+      "rank": 2
+    },
+    {
+      "compactor": "pinned-rules",
+      "budget_fraction": 0.1,
+      "budget_compliant": true,
+      "max_output_to_budget": 1.0,
+      "mean_final_output_ratio": 0.097,
+      "runtime_seconds": 0.028,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.4,
+        "final_median_by_type": {
+          "fact": 0.0,
+          "goal_state": 0.0,
+          "hard_constraint": 1.0,
+          "safety_rule": 1.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 8,
+          "resolved": 0,
+          "stale": 8,
+          "both": 8,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 8,
+          "resolved": 0,
+          "stale": 48,
+          "both": 8,
+          "stale_only": 40,
+          "pairs": 48,
+          "pairs_both_held": 16
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 0.333
+      },
+      "rank": 3
+    },
+    {
+      "compactor": "checklist-carrying",
+      "budget_fraction": 0.1,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.992,
+      "mean_final_output_ratio": 0.097,
+      "runtime_seconds": 0.057,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.35,
+        "final_median_by_type": {
+          "fact": 0.0,
+          "goal_state": 0.0,
+          "hard_constraint": 0.75,
+          "safety_rule": 1.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 8,
+          "resolved": 0,
+          "stale": 8,
+          "both": 8,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 8,
+          "resolved": 0,
+          "stale": 96,
+          "both": 8,
+          "stale_only": 88,
+          "pairs": 48,
+          "pairs_both_held": 24
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 0.5
+      },
+      "rank": 4
+    },
+    {
+      "compactor": "lossy-truncation",
+      "budget_fraction": 0.1,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.994,
+      "mean_final_output_ratio": 0.012,
+      "runtime_seconds": 0.019,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.0,
+        "final_median_by_type": {
+          "fact": 0.0,
+          "goal_state": 0.0,
+          "hard_constraint": 0.0,
+          "safety_rule": 0.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 0,
+          "resolved": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 0,
+          "resolved": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "pairs": 48,
+          "pairs_both_held": 0
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 0.0
+      },
+      "rank": 5
+    },
+    {
+      "compactor": "summary-plus-tail",
+      "budget_fraction": 0.1,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.998,
+      "mean_final_output_ratio": 0.083,
+      "runtime_seconds": 0.021,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.0,
+        "final_median_by_type": {
+          "fact": 0.0,
+          "goal_state": 0.0,
+          "hard_constraint": 0.0,
+          "safety_rule": 0.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 0,
+          "resolved": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 0,
+          "resolved": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "pairs": 48,
+          "pairs_both_held": 0
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 0.0
+      },
+      "rank": 6
+    },
+    {
+      "compactor": "naive-summary",
+      "budget_fraction": 0.1,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.999,
+      "mean_final_output_ratio": 0.098,
+      "runtime_seconds": 0.021,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.0,
+        "final_median_by_type": {
+          "fact": 0.0,
+          "goal_state": 0.0,
+          "hard_constraint": 0.0,
+          "safety_rule": 0.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 0,
+          "resolved": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 0,
+          "resolved": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "pairs": 48,
+          "pairs_both_held": 0
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 0.0
+      },
+      "rank": 7
+    },
+    {
+      "compactor": "semantic-checklist",
+      "budget_fraction": 0.2,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.987,
+      "mean_final_output_ratio": 0.174,
+      "runtime_seconds": 1.898,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.85,
+        "final_median_by_type": {
+          "fact": 1.0,
+          "goal_state": 1.0,
+          "hard_constraint": 1.0,
+          "safety_rule": 1.0,
+          "user_preference": 0.25
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 16,
+          "resolved": 16,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 128,
+          "resolved": 128,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "pairs": 48,
+          "pairs_both_held": 48
+        },
+        "resolved_rate": 1.0,
+        "distinct_pair_rate": 1.0
+      },
+      "rank": 1
+    },
+    {
+      "compactor": "update-aware-checklist",
+      "budget_fraction": 0.2,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.972,
+      "mean_final_output_ratio": 0.149,
+      "runtime_seconds": 0.044,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.85,
+        "final_median_by_type": {
+          "fact": 1.0,
+          "goal_state": 1.0,
+          "hard_constraint": 1.0,
+          "safety_rule": 1.0,
+          "user_preference": 0.25
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 16,
+          "resolved": 16,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 8,
+          "resolved": 0,
+          "stale": 128,
+          "both": 8,
+          "stale_only": 120,
+          "pairs": 48,
+          "pairs_both_held": 48
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 1.0
+      },
+      "rank": 2
+    },
+    {
+      "compactor": "checklist-carrying",
+      "budget_fraction": 0.2,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.979,
+      "mean_final_output_ratio": 0.158,
+      "runtime_seconds": 0.062,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.6,
+        "final_median_by_type": {
+          "fact": 1.0,
+          "goal_state": 0.0,
+          "hard_constraint": 1.0,
+          "safety_rule": 1.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 16,
+          "resolved": 0,
+          "stale": 16,
+          "both": 16,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 8,
+          "resolved": 0,
+          "stale": 128,
+          "both": 8,
+          "stale_only": 120,
+          "pairs": 48,
+          "pairs_both_held": 48
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 1.0
+      },
+      "rank": 3
+    },
+    {
+      "compactor": "pinned-rules",
+      "budget_fraction": 0.2,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.999,
+      "mean_final_output_ratio": 0.197,
+      "runtime_seconds": 0.044,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.4,
+        "final_median_by_type": {
+          "fact": 0.0,
+          "goal_state": 0.0,
+          "hard_constraint": 1.0,
+          "safety_rule": 1.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 8,
+          "resolved": 0,
+          "stale": 8,
+          "both": 8,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 8,
+          "resolved": 0,
+          "stale": 48,
+          "both": 8,
+          "stale_only": 40,
+          "pairs": 48,
+          "pairs_both_held": 16
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 0.333
+      },
+      "rank": 4
+    },
+    {
+      "compactor": "naive-summary",
+      "budget_fraction": 0.2,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.999,
+      "mean_final_output_ratio": 0.197,
+      "runtime_seconds": 0.021,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.1,
+        "final_median_by_type": {
+          "fact": 0.25,
+          "goal_state": 0.0,
+          "hard_constraint": 0.0,
+          "safety_rule": 0.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 1,
+          "resolved": 0,
+          "stale": 1,
+          "both": 1,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 32,
+          "resolved": 32,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "pairs": 48,
+          "pairs_both_held": 0
+        },
+        "resolved_rate": 0.25,
+        "distinct_pair_rate": 0.0
+      },
+      "rank": 5
+    },
+    {
+      "compactor": "summary-plus-tail",
+      "budget_fraction": 0.2,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.999,
+      "mean_final_output_ratio": 0.196,
+      "runtime_seconds": 0.022,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.05,
+        "final_median_by_type": {
+          "fact": 0.125,
+          "goal_state": 0.0,
+          "hard_constraint": 0.0,
+          "safety_rule": 0.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 1,
+          "resolved": 0,
+          "stale": 1,
+          "both": 1,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 16,
+          "resolved": 16,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "pairs": 48,
+          "pairs_both_held": 0
+        },
+        "resolved_rate": 0.125,
+        "distinct_pair_rate": 0.0
+      },
+      "rank": 6
+    },
+    {
+      "compactor": "lossy-truncation",
+      "budget_fraction": 0.2,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.998,
+      "mean_final_output_ratio": 0.012,
+      "runtime_seconds": 0.019,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.0,
+        "final_median_by_type": {
+          "fact": 0.0,
+          "goal_state": 0.0,
+          "hard_constraint": 0.0,
+          "safety_rule": 0.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 0,
+          "resolved": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 0,
+          "resolved": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "pairs": 48,
+          "pairs_both_held": 0
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 0.0
+      },
+      "rank": 7
+    },
+    {
+      "compactor": "semantic-checklist",
+      "budget_fraction": 0.3,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.921,
+      "mean_final_output_ratio": 0.223,
+      "runtime_seconds": 2.082,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 1.0,
+        "final_median_by_type": {
+          "fact": 1.0,
+          "goal_state": 1.0,
+          "hard_constraint": 1.0,
+          "safety_rule": 1.0,
+          "user_preference": 1.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 16,
+          "resolved": 16,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 128,
+          "resolved": 128,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "pairs": 48,
+          "pairs_both_held": 48
+        },
+        "resolved_rate": 1.0,
+        "distinct_pair_rate": 1.0
+      },
+      "rank": 1
+    },
+    {
+      "compactor": "update-aware-checklist",
+      "budget_fraction": 0.3,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.903,
+      "mean_final_output_ratio": 0.225,
+      "runtime_seconds": 0.046,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 1.0,
+        "final_median_by_type": {
+          "fact": 1.0,
+          "goal_state": 1.0,
+          "hard_constraint": 1.0,
+          "safety_rule": 1.0,
+          "user_preference": 1.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 16,
+          "resolved": 16,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 8,
+          "resolved": 0,
+          "stale": 128,
+          "both": 8,
+          "stale_only": 120,
+          "pairs": 48,
+          "pairs_both_held": 48
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 1.0
+      },
+      "rank": 2
+    },
+    {
+      "compactor": "checklist-carrying",
+      "budget_fraction": 0.3,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.955,
+      "mean_final_output_ratio": 0.254,
+      "runtime_seconds": 0.061,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 1.0,
+        "final_median_by_type": {
+          "fact": 1.0,
+          "goal_state": 1.0,
+          "hard_constraint": 1.0,
+          "safety_rule": 1.0,
+          "user_preference": 1.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 16,
+          "resolved": 0,
+          "stale": 16,
+          "both": 16,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 8,
+          "resolved": 0,
+          "stale": 128,
+          "both": 8,
+          "stale_only": 120,
+          "pairs": 48,
+          "pairs_both_held": 48
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 1.0
+      },
+      "rank": 3
+    },
+    {
+      "compactor": "pinned-rules",
+      "budget_fraction": 0.3,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.999,
+      "mean_final_output_ratio": 0.277,
+      "runtime_seconds": 0.033,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.469,
+        "final_median_by_type": {
+          "fact": 0.25,
+          "goal_state": 0.0,
+          "hard_constraint": 1.0,
+          "safety_rule": 1.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 9,
+          "resolved": 0,
+          "stale": 9,
+          "both": 9,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 48,
+          "resolved": 32,
+          "stale": 48,
+          "both": 16,
+          "stale_only": 32,
+          "pairs": 48,
+          "pairs_both_held": 16
+        },
+        "resolved_rate": 0.25,
+        "distinct_pair_rate": 0.333
+      },
+      "rank": 4
+    },
+    {
+      "compactor": "naive-summary",
+      "budget_fraction": 0.3,
+      "budget_compliant": true,
+      "max_output_to_budget": 0.717,
+      "mean_final_output_ratio": 0.213,
+      "runtime_seconds": 0.02,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.15,
+        "final_median_by_type": {
+          "fact": 0.25,
+          "goal_state": 0.0,
+          "hard_constraint": 0.125,
+          "safety_rule": 0.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 2,
+          "resolved": 0,
+          "stale": 2,
+          "both": 2,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 48,
+          "resolved": 48,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "pairs": 48,
+          "pairs_both_held": 0
+        },
+        "resolved_rate": 0.375,
+        "distinct_pair_rate": 0.0
+      },
+      "rank": 5
+    },
+    {
+      "compactor": "summary-plus-tail",
+      "budget_fraction": 0.3,
+      "budget_compliant": true,
+      "max_output_to_budget": 1.0,
+      "mean_final_output_ratio": 0.297,
+      "runtime_seconds": 0.024,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.081,
+        "final_median_by_type": {
+          "fact": 0.0,
+          "goal_state": 0.0,
+          "hard_constraint": 0.125,
+          "safety_rule": 0.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 2,
+          "resolved": 1,
+          "stale": 1,
+          "both": 1,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 32,
+          "resolved": 32,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "pairs": 48,
+          "pairs_both_held": 0
+        },
+        "resolved_rate": 0.25,
+        "distinct_pair_rate": 0.0
+      },
+      "rank": 6
+    },
+    {
+      "compactor": "lossy-truncation",
+      "budget_fraction": 0.3,
+      "budget_compliant": true,
+      "max_output_to_budget": 1.0,
+      "mean_final_output_ratio": 0.013,
+      "runtime_seconds": 0.019,
+      "randomized": {
+        "sessions": 8,
+        "overall_final_survival": 0.0,
+        "final_median_by_type": {
+          "fact": 0.0,
+          "goal_state": 0.0,
+          "hard_constraint": 0.0,
+          "safety_rule": 0.0,
+          "user_preference": 0.0
+        },
+        "supersession": {
+          "n": 16,
+          "latest": 0,
+          "resolved": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0
+        }
+      },
+      "semantic": {
+        "sessions": 16,
+        "conflicts": {
+          "n": 128,
+          "latest": 0,
+          "resolved": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "pairs": 48,
+          "pairs_both_held": 0
+        },
+        "resolved_rate": 0.0,
+        "distinct_pair_rate": 0.0
+      },
+      "rank": 7
+    }
+  ]
+}

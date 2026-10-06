@@ -9,6 +9,7 @@ Every demo runs with no API key and no model calls.
 | 30-second CLI demo | `compaction-kit demo` | Three compactors, five rounds, per-type reports on the seeded session |
 | CI gate | `compaction-kit report --compactor update-aware-checklist` | Exit 0 when clean, exit 1 on FLAG or late cliff |
 | Randomized corpus | `compaction-kit corpus --seeds 1-12` | Survival medians across 12 generated sessions, JSON output |
+| Budget benchmark | `compaction-kit benchmark --budgets 10%,20%,30%` | Fixed-budget leaderboard across the randomized and semantic suites |
 | Measure your own compactor | `python3 examples/measure_your_compactor.py` | A custom compactor in about 20 lines, scored by the kit |
 | Recorded CLI output | [demo_cli.md](demo_cli.md) | Verbatim output of the three commands above |
 
@@ -23,6 +24,7 @@ Every demo runs with no API key and no model calls.
 | `corpus-results.json` | 12-seed corpus aggregates: survival, cliffs, position effect, supersession |
 | `mitigations-results.json` | Six-compactor mitigation comparison aggregates |
 | `semantic-corpus-results.json` | Semantic-conflict corpus: paraphrased updates, stale-carried, distinct-pair preservation |
+| `budget-benchmark-results.json` | Fixed-budget benchmark: compliance, survival, semantic resolution, stale leakage, distinct pairs at 10/20/30% budgets |
 
 ## Longer write-ups
 
@@ -37,4 +39,8 @@ Every demo runs with no API key and no model calls.
 - [../sim/MITIGATIONS.md](../sim/MITIGATIONS.md) — which mitigation
   actually works: update-aware checklist wins on both axes.
 - [../sim/SEMANTIC_CORPUS.md](../sim/SEMANTIC_CORPUS.md) — paraphrased
-  updates defeat every current compactor; the next open problem.
+  updates defeat the marker-based compactors; the semantic resolver
+  resolves them on development and held-out corpora.
+- [../sim/BUDGET_BENCHMARK.md](../sim/BUDGET_BENCHMARK.md) — what
+  survives at fixed 10/20/30% output budgets, and why over-preservation
+  stops being free once size is capped.

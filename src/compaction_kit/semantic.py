@@ -20,7 +20,7 @@ from dataclasses import dataclass
 
 from .canaries import CanaryType
 from .compacted import CompactedContext
-from .compactors import ChecklistCompactor, _turns_to_text
+from .compactors import ChecklistCompactor, _render_checklist, _turns_to_text
 from .session import Turn
 
 _HEADERS = {
@@ -241,7 +241,9 @@ class SemanticChecklistCompactor(ChecklistCompactor):
 
     name = "semantic-checklist"
 
-    def compact(self, turns: list[Turn], round_num: int = 1) -> CompactedContext:
+    def compact(
+        self, turns: list[Turn], round_num: int = 1, budget_chars: int | None = None
+    ) -> CompactedContext:
         text = _turns_to_text(turns)
         semantic_items = extract_semantic_items(text)
 
@@ -270,17 +272,19 @@ class SemanticChecklistCompactor(ChecklistCompactor):
             if item.text not in bucket:
                 bucket.append(item.text)
 
-        lines = [f"[compacted by {self.name} round {round_num}]", "PRESERVED CHECKLIST (semantic latest value wins):"]
-        for ctype in CanaryType:
-            lines.append(f"[{ctype.value}]")
-            for item in sections[ctype.value]:
-                lines.append(f"- {item}")
         tail = _semantic_safe_tail(turns, self.tail_turns) if turns else ""
-        lines.append("RECENT ACTIVITY (semantic statements held in checklist):")
-        lines.append(tail)
+        rendered, selected = _render_checklist(
+            self.name,
+            round_num,
+            "PRESERVED CHECKLIST (semantic latest value wins):",
+            sections,
+            tail=tail,
+            tail_heading="RECENT ACTIVITY (semantic statements held in checklist):",
+            budget_chars=budget_chars,
+        )
         return CompactedContext(
-            text="\n".join(lines),
+            text=rendered,
             compactor_name=self.name,
             round_num=round_num,
-            structured=sections,
+            structured=selected,
         )

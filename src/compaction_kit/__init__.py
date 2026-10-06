@@ -4,6 +4,7 @@ Measures what an agent's context compaction actually preserves,
 by planting typed canaries and probing survival across rounds.
 """
 
+from .benchmark import budget_benchmark_to_markdown, run_budget_benchmark
 from .canaries import Canary, CanaryType, seeded_canaries
 from .compacted import CompactedContext
 from .compactors import (
@@ -53,7 +54,9 @@ __all__ = [
     "build_semantic_session",
     "build_report",
     "build_seeded_session",
+    "budget_benchmark_to_markdown",
     "position_bucket",
+    "run_budget_benchmark",
     "run_conformance",
     "seeded_canaries",
 ]

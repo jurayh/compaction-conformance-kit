@@ -5,6 +5,7 @@ Commands:
   report  one compactor on the seeded session; exit 1 if any type is
           flagged at round 1 or hits a late cliff, else 0
   corpus  randomized multi-seed corpus run, aggregated as JSON
+  benchmark  fixed-budget leaderboard across randomized and semantic suites
 
 No API key, no model calls.
 """
@@ -25,6 +26,7 @@ from .compactors import (
     SummaryTailCompactor,
     UpdateAwareChecklistCompactor,
 )
+from .benchmark import budget_benchmark_to_markdown, run_budget_benchmark
 from .corpus import build_random_session
 from .report import build_report
 from .runner import run_conformance
@@ -119,6 +121,35 @@ def _cmd_corpus(args) -> int:
     return 0
 
 
+def _parse_budgets(spec: str) -> list[float]:
+    budgets = []
+    for part in spec.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        value = float(part[:-1]) / 100 if part.endswith("%") else float(part)
+        if not (0 < value <= 1):
+            raise ValueError(f"budget out of range: {part}")
+        budgets.append(value)
+    return budgets or [0.10, 0.20, 0.30]
+
+
+def _cmd_benchmark(args) -> int:
+    names = list(COMPACTORS) if args.compactor == "all" else [args.compactor]
+    factories = {name: COMPACTORS[name] for name in names}
+    payload = run_budget_benchmark(
+        factories,
+        budgets=_parse_budgets(args.budgets),
+        seeds=_parse_seeds(args.seeds),
+        rounds=args.rounds,
+    )
+    if args.format == "json":
+        print(json.dumps(payload, indent=2))
+    else:
+        print(budget_benchmark_to_markdown(payload))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="compaction-kit", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -140,6 +171,16 @@ def main(argv: list[str] | None = None) -> int:
     p_corpus.add_argument("--seeds", default="1-12", help="e.g. 1-12 or 1,3,5")
     p_corpus.add_argument("--rounds", type=int, default=5)
     p_corpus.set_defaults(fn=_cmd_corpus)
+
+    p_benchmark = sub.add_parser(
+        "benchmark", help="fixed-budget leaderboard (randomized + semantic suites)"
+    )
+    p_benchmark.add_argument("--compactor", choices=["all", *COMPACTORS], default="all")
+    p_benchmark.add_argument("--budgets", default="0.10,0.20,0.30", help="fractions or percents, e.g. 0.1,0.2 or 10%,20%")
+    p_benchmark.add_argument("--seeds", default="1-4", help="e.g. 1-4 or 1,3,5")
+    p_benchmark.add_argument("--rounds", type=int, default=5)
+    p_benchmark.add_argument("--format", choices=["md", "json"], default="md")
+    p_benchmark.set_defaults(fn=_cmd_benchmark)
 
     args = parser.parse_args(argv)
     return args.fn(args)

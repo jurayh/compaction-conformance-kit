@@ -46,11 +46,12 @@ like this (abbreviated):
 | safety_rule | 25% | 25%, 0%, 0%, 0%, 0% | FLAG | round 1 |
 | user_preference | 100% | 100% across all rounds | SILENT | none |
 
-Two more commands:
+Three more commands:
 
 ```bash
 compaction-kit report --compactor update-aware-checklist   # CI gate: exit 1 on FLAG or late cliff
 compaction-kit corpus --seeds 1-12                         # randomized multi-session run, JSON
+compaction-kit benchmark --budgets 10%,20%,30%             # fixed-budget leaderboard, markdown
 ```
 
 Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md).
@@ -255,6 +256,29 @@ held-out corpus with new templates and subjects
 (`build_semantic_heldout_session(seed)`) gives the same 64/64 and
 24/24 result. Details: [sim/SEMANTIC_CORPUS.md](sim/SEMANTIC_CORPUS.md).
 
+## The budget benchmark
+
+Survival without a size limit is gameable: a compactor that carries
+nearly everything wins by not compacting. The benchmark command runs
+every compactor at fixed output budgets — 10%, 20%, and 30% of the
+original transcript, in characters, fixed across rounds — over the
+randomized corpus and both semantic corpora, and ranks by budget
+compliance, preservation, semantic resolution, distinct-pair
+preservation, and output size.
+
+At 20%, the semantic checklist holds 85% randomized survival with
+100% semantic resolution and no stale values; the update-aware
+checklist matches its 85% survival but carries a stale value in every
+semantic conflict. At 30%, both checklist variants and the semantic
+resolver reach 100% survival, and only the semantic resolver also
+resolves the paraphrased updates. At 10%, no compactor exceeds 40%
+survival, which is the honest ceiling for that cap. Details:
+[sim/BUDGET_BENCHMARK.md](sim/BUDGET_BENCHMARK.md).
+
+Custom compactors join by accepting the optional `budget_chars`
+keyword in `compact()`; older two-argument compactors still run and
+are marked non-compliant when their output exceeds the budget.
+
 ## The spike gate
 
 This kit exists only because it passed a kill criterion set before the
@@ -275,6 +299,7 @@ breaks the separation breaks the build.
 | `src/compaction_kit/corpus.py` | Randomized multi-seed session generator |
 | `src/compaction_kit/semantic_corpus.py` | Development and held-out paraphrased-update conflicts and distinct near-duplicate items |
 | `src/compaction_kit/semantic.py` | Dependency-free semantic update resolver (`SemanticChecklistCompactor`) |
+| `src/compaction_kit/benchmark.py` | Fixed-budget benchmark: randomized + semantic suites, compliance, and leaderboard ranking |
 | `src/compaction_kit/compactors.py` | The `Compactor` protocol and reference implementations, including update-aware checklist, pinned rules, and summary-plus-tail mitigations |
 | `src/compaction_kit/probes.py` | Direct-recall, behavior, and exact-use probes |
 | `src/compaction_kit/simulated_agent.py` | $0 retrieval agent for probing |
@@ -289,6 +314,7 @@ breaks the separation breaks the build.
 | `tests/test_mitigations.py` | Mitigation comparison tests |
 | `tests/test_semantic_corpus.py` | Semantic-conflict corpus tests, including the earlier compactors' diagnostic failure |
 | `tests/test_semantic.py` | Semantic resolver classification, stale-drop, false-merge, and held-out success tests |
+| `tests/test_budget.py` | Budget protocol compatibility, compliance, priority, and benchmark ranking tests |
 
 Extending it is one class at a time: a new compactor implements the
 protocol, a new probe implements `probe(canary, context_text)`.
@@ -296,8 +322,9 @@ protocol, a new probe implements `probe(canary, context_text)`.
 ## Status
 
 v0.2 release. Python 3.11+, zero dependencies, zero model spend for
-the default path. MIT license. This release adds the semantic update
-resolver and the held-out semantic-conflict corpus.
+the default path. MIT license. The 0.2.0 release adds the semantic
+update resolver and the held-out semantic-conflict corpus; the budget
+benchmark is on `main` ahead of the next package release.
 
 Not a compaction fix. A measurement. Fixes are easier to trust once
 something independent can say what they preserve, and what they lose.

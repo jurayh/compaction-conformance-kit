@@ -19,7 +19,12 @@ _TYPE_HEADERS = {
 class Compactor(Protocol):
     name: str
 
-    def compact(self, turns: list[Turn], round_num: int = 1) -> CompactedContext: ...
+    def compact(
+        self,
+        turns: list[Turn],
+        round_num: int = 1,
+        budget_chars: int | None = None,
+    ) -> CompactedContext: ...
 
 
 def _turns_to_text(turns: list[Turn]) -> str:
@@ -28,6 +33,70 @@ def _turns_to_text(turns: list[Turn]) -> str:
 
 def _text_to_turns(text: str) -> list[Turn]:
     return [Turn("system", text)]
+
+
+def _truncate_to_budget(text: str, budget_chars: int | None) -> str:
+    """Truncate at a line boundary when possible."""
+    if budget_chars is None or len(text) <= budget_chars:
+        return text
+    if budget_chars <= 0:
+        return ""
+    cut = text[:budget_chars]
+    idx = cut.rfind("\n")
+    if idx > 0:
+        cut = cut[:idx]
+    return cut.rstrip()
+
+
+def _render_checklist(
+    name: str,
+    round_num: int,
+    title: str,
+    sections: dict[str, list[str]],
+    tail: str = "",
+    tail_heading: str = "RECENT ACTIVITY:",
+    budget_chars: int | None = None,
+) -> tuple[str, dict[str, list[str]]]:
+    """Render checklist sections, fitting a character budget if given.
+
+    Budget policy for the reference compactors is explicit: drop the
+    recent-activity tail first, then select whole items in type-priority
+    order (safety rules, hard constraints, facts, goal state, user
+    preferences). Whole items are never cut in half.
+    """
+    header = [f"[compacted by {name} round {round_num}]", title]
+
+    def render(selected: dict[str, list[str]], include_tail: bool) -> str:
+        lines = list(header)
+        for ctype in CanaryType:
+            lines.append(f"[{ctype.value}]")
+            for item in selected.get(ctype.value, []):
+                lines.append(f"- {item}")
+        if include_tail:
+            lines.append(tail_heading)
+            lines.append(tail)
+        return "\n".join(lines)
+
+    full = render(sections, include_tail=bool(tail))
+    if budget_chars is None or len(full) <= budget_chars:
+        return full, sections
+
+    no_tail = render(sections, include_tail=False)
+    if len(no_tail) <= budget_chars:
+        return no_tail, sections
+
+    selected: dict[str, list[str]] = {ctype.value: [] for ctype in CanaryType}
+    base = render(selected, include_tail=False)
+    if len(base) > budget_chars:
+        return _truncate_to_budget(base, budget_chars), selected
+    current_len = len(base)
+    for ctype in CanaryType:
+        for item in sections.get(ctype.value, []):
+            line = f"- {item}"
+            if current_len + 1 + len(line) <= budget_chars:
+                selected[ctype.value].append(item)
+                current_len += 1 + len(line)
+    return render(selected, include_tail=False), selected
 
 
 class LossyTruncationCompactor:
@@ -42,13 +111,18 @@ class LossyTruncationCompactor:
     def __init__(self, keep_fraction: float = 0.30) -> None:
         self.keep_fraction = keep_fraction
 
-    def compact(self, turns: list[Turn], round_num: int = 1) -> CompactedContext:
+    def compact(
+        self, turns: list[Turn], round_num: int = 1, budget_chars: int | None = None
+    ) -> CompactedContext:
         text = _turns_to_text(turns)
         keep = max(1, int(len(text) * self.keep_fraction))
+        if budget_chars is not None:
+            keep = min(keep, max(1, budget_chars))
         tail = text[-keep:]
         # keep whole lines only
         tail = tail[tail.find("\n") + 1 :] if "\n" in tail else tail
         out = f"[compacted by {self.name} round {round_num}: truncated to last {self.keep_fraction:.0%}]\n{tail}"
+        out = _truncate_to_budget(out, budget_chars)
         return CompactedContext(text=out, compactor_name=self.name, round_num=round_num)
 
 
@@ -62,7 +136,9 @@ class NaiveSummaryCompactor:
 
     name = "naive-summary"
 
-    def compact(self, turns: list[Turn], round_num: int = 1) -> CompactedContext:
+    def compact(
+        self, turns: list[Turn], round_num: int = 1, budget_chars: int | None = None
+    ) -> CompactedContext:
         # summarize only the second half in any detail; first half collapses
         mid = len(turns) // 2
         early, late = turns[:mid], turns[mid:]
@@ -75,6 +151,7 @@ class NaiveSummaryCompactor:
             "Recent activity (verbatim tail):\n"
             f"{late_text[-1500:]}"
         )
+        summary = _truncate_to_budget(summary, budget_chars)
         return CompactedContext(text=summary, compactor_name=self.name, round_num=round_num)
 
 
@@ -98,10 +175,19 @@ class LLMSummarizerCompactor:
         self._summarize = summarize_fn
         self.name = name
 
-    def compact(self, turns: list[Turn], round_num: int = 1) -> CompactedContext:
+    def compact(
+        self, turns: list[Turn], round_num: int = 1, budget_chars: int | None = None
+    ) -> CompactedContext:
         text = _turns_to_text(turns)
-        out = self._summarize(text)
-        return CompactedContext(text=str(out), compactor_name=self.name, round_num=round_num)
+        if budget_chars is not None:
+            text = (
+                f"[Instruction: compact this context to at most {budget_chars} "
+                "characters, preserving safety rules, constraints, facts, "
+                "goal state, and user preferences.]\n" + text
+            )
+        out = str(self._summarize(text))
+        out = _truncate_to_budget(out, budget_chars)
+        return CompactedContext(text=out, compactor_name=self.name, round_num=round_num)
 
 
 class ChecklistCompactor:
@@ -145,7 +231,9 @@ class ChecklistCompactor:
                         sections[current].append(item)
         return sections
 
-    def compact(self, turns: list[Turn], round_num: int = 1) -> CompactedContext:
+    def compact(
+        self, turns: list[Turn], round_num: int = 1, budget_chars: int | None = None
+    ) -> CompactedContext:
         text = _turns_to_text(turns)
         sections = self._extract(text)
         # merge in any canonical canaries present verbatim (marker path)
@@ -154,19 +242,20 @@ class ChecklistCompactor:
                 bucket = sections[c.type.value]
                 if c.content not in bucket:
                     bucket.append(c.content)
-        lines = [f"[compacted by {self.name} round {round_num}]", "PRESERVED CHECKLIST (carried verbatim):"]
-        for ctype in CanaryType:
-            lines.append(f"[{ctype.value}]")
-            for item in sections[ctype.value]:
-                lines.append(f"- {item}")
-        tail = _turns_to_text(turns[-self.tail_turns :]) if turns else ""
-        lines.append("RECENT ACTIVITY:")
-        lines.append(tail[-800:])
+        tail = _turns_to_text(turns[-self.tail_turns :])[-800:] if turns else ""
+        rendered, selected = _render_checklist(
+            self.name,
+            round_num,
+            "PRESERVED CHECKLIST (carried verbatim):",
+            sections,
+            tail=tail,
+            budget_chars=budget_chars,
+        )
         return CompactedContext(
-            text="\n".join(lines),
+            text=rendered,
             compactor_name=self.name,
             round_num=round_num,
-            structured=sections,
+            structured=selected,
         )
 
 
@@ -194,7 +283,9 @@ class UpdateAwareChecklistCompactor(ChecklistCompactor):
 
     name = "update-aware-checklist"
 
-    def compact(self, turns: list[Turn], round_num: int = 1) -> CompactedContext:
+    def compact(
+        self, turns: list[Turn], round_num: int = 1, budget_chars: int | None = None
+    ) -> CompactedContext:
         text = _turns_to_text(turns)
         raw = self._extract(text)
         sections: dict[str, list[str]] = {}
@@ -208,19 +299,20 @@ class UpdateAwareChecklistCompactor(ChecklistCompactor):
                 latest[k] = item
                 order.append(k)
             sections[ctype] = [latest[k] for k in order]
-        lines = [f"[compacted by {self.name} round {round_num}]", "PRESERVED CHECKLIST (latest value wins):"]
-        for ctype in CanaryType:
-            lines.append(f"[{ctype.value}]")
-            for item in sections[ctype.value]:
-                lines.append(f"- {item}")
-        tail = _turns_to_text(turns[-self.tail_turns :]) if turns else ""
-        lines.append("RECENT ACTIVITY:")
-        lines.append(tail[-800:])
+        tail = _turns_to_text(turns[-self.tail_turns :])[-800:] if turns else ""
+        rendered, selected = _render_checklist(
+            self.name,
+            round_num,
+            "PRESERVED CHECKLIST (latest value wins):",
+            sections,
+            tail=tail,
+            budget_chars=budget_chars,
+        )
         return CompactedContext(
-            text="\n".join(lines),
+            text=rendered,
             compactor_name=self.name,
             round_num=round_num,
-            structured=sections,
+            structured=selected,
         )
 
 
@@ -237,18 +329,42 @@ class PinnedRulesCompactor:
         self._extractor = ChecklistCompactor()
         self._summary = NaiveSummaryCompactor()
 
-    def compact(self, turns: list[Turn], round_num: int = 1) -> CompactedContext:
+    def compact(
+        self, turns: list[Turn], round_num: int = 1, budget_chars: int | None = None
+    ) -> CompactedContext:
         text = _turns_to_text(turns)
         sections = self._extractor._extract(text)
         pinned: list[str] = []
         for ctype in (CanaryType.SAFETY_RULE, CanaryType.HARD_CONSTRAINT):
             pinned.extend(sections[ctype.value])
-        summary = self._summary.compact(turns, round_num=round_num).text
-        lines = [f"[compacted by {self.name} round {round_num}]", "PINNED RULES (verbatim):"]
+        header = [f"[compacted by {self.name} round {round_num}]", "PINNED RULES (verbatim):"]
+        if budget_chars is not None:
+            # Pinned items get the budget first, in safety-then-constraint
+            # order; the summary receives only the space left over.
+            selected: list[str] = []
+            current = len("\n".join(header))
+            for item in pinned:
+                line = f"- {item}"
+                if current + 1 + len(line) <= budget_chars:
+                    selected.append(item)
+                    current += 1 + len(line)
+            pinned = selected
+            remaining = budget_chars - current - len("\nSUMMARY OF THE REST:\n")
+            summary = (
+                self._summary.compact(
+                    turns, round_num=round_num, budget_chars=max(0, remaining)
+                ).text
+                if remaining > 0
+                else ""
+            )
+        else:
+            summary = self._summary.compact(turns, round_num=round_num).text
+        lines = list(header)
         lines.extend(f"- {item}" for item in pinned)
         lines.append("SUMMARY OF THE REST:")
         lines.append(summary)
-        return CompactedContext(text="\n".join(lines), compactor_name=self.name, round_num=round_num)
+        out = _truncate_to_budget("\n".join(lines), budget_chars)
+        return CompactedContext(text=out, compactor_name=self.name, round_num=round_num)
 
 
 class SummaryTailCompactor:
@@ -264,11 +380,16 @@ class SummaryTailCompactor:
         self.keep_fraction = keep_fraction
         self._summary = NaiveSummaryCompactor()
 
-    def compact(self, turns: list[Turn], round_num: int = 1) -> CompactedContext:
+    def compact(
+        self, turns: list[Turn], round_num: int = 1, budget_chars: int | None = None
+    ) -> CompactedContext:
         text = _turns_to_text(turns)
         keep = max(1, int(len(text) * self.keep_fraction))
+        if budget_chars is not None:
+            keep = min(keep, max(1, budget_chars))
         tail = text[-keep:]
         tail = tail[tail.find("\n") + 1 :] if "\n" in tail else tail
         summary = self._summary.compact(turns, round_num=round_num).text
         out = f"[compacted by {self.name} round {round_num}]\n{summary}\nRAW TAIL:\n{tail}"
+        out = _truncate_to_budget(out, budget_chars)
         return CompactedContext(text=out, compactor_name=self.name, round_num=round_num)
