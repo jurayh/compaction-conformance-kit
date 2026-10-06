@@ -344,10 +344,11 @@ protocol, a new probe implements `probe(canary, context_text)`.
 
 ## Status
 
-v0.2 release. Python 3.11+, zero dependencies, zero model spend for
-the default path. MIT license. The 0.2.0 release adds the semantic
-update resolver and the held-out semantic-conflict corpus; the budget
-benchmark is on `main` ahead of the next package release.
+v0.3 release. Python 3.11+, zero dependencies, zero model spend for
+the default path. MIT license. The 0.3.0 release adds the fixed-budget
+benchmark and external adapters, including a LangChain-style
+progressive summarizer and scoring for compacted output produced by
+other systems.
 
 Not a compaction fix. A measurement. Fixes are easier to trust once
 something independent can say what they preserve, and what they lose.
