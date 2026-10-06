@@ -32,7 +32,9 @@ COMPACTORS = [
     ("checklist-carrying", ChecklistCompactor, "#27ae60"),
     ("update-aware-checklist", UpdateAwareChecklistCompactor, "#16a085"),
 ]
-W, H, PAD = 760, 360, 56
+# TOP reserves a header band for the title and the two legend rows, so the
+# 100% line (at y=TOP) clears the legend instead of running through it.
+W, H, PAD, TOP = 760, 416, 56, 112
 
 
 def main() -> None:
@@ -50,7 +52,7 @@ def main() -> None:
         return PAD + i * (W - 2 * PAD) / 4
 
     def y(v: float) -> float:
-        return H - PAD - v * (H - 2 * PAD)
+        return H - PAD - v * (H - PAD - TOP)
 
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">',
