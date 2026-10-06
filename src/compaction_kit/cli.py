@@ -28,6 +28,7 @@ from .compactors import (
 from .corpus import build_random_session
 from .report import build_report
 from .runner import run_conformance
+from .semantic import SemanticChecklistCompactor
 from .session import build_seeded_session
 
 COMPACTORS = {
@@ -37,6 +38,7 @@ COMPACTORS = {
     "pinned-rules": PinnedRulesCompactor,
     "checklist-carrying": ChecklistCompactor,
     "update-aware-checklist": UpdateAwareChecklistCompactor,
+    "semantic-checklist": SemanticChecklistCompactor,
 }
 
 

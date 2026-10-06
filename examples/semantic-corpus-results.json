@@ -86,18 +86,22 @@
         "stale_only": 0
       },
       "distinct_pairs": {
-        "d-launch-deadline+d-docs-deadline": {
+        "d-primary-region+d-backup-region": {
           "n": 8,
           "both_held": 0
         },
-        "d-oncall+d-reviewer": {
+        "d-prod-db+d-staging-db": {
           "n": 8,
           "both_held": 0
         },
-        "d-project-budget+d-travel-budget": {
+        "d-unit-tests+d-integration-tests": {
           "n": 8,
           "both_held": 0
         }
+      },
+      "distinct_pair_totals": {
+        "n": 24,
+        "both_held": 0
       }
     },
     "naive-summary": {
@@ -175,18 +179,22 @@
         "stale_only": 0
       },
       "distinct_pairs": {
-        "d-launch-deadline+d-docs-deadline": {
+        "d-primary-region+d-backup-region": {
           "n": 8,
           "both_held": 0
         },
-        "d-oncall+d-reviewer": {
+        "d-prod-db+d-staging-db": {
           "n": 8,
           "both_held": 0
         },
-        "d-project-budget+d-travel-budget": {
+        "d-unit-tests+d-integration-tests": {
           "n": 8,
           "both_held": 0
         }
+      },
+      "distinct_pair_totals": {
+        "n": 24,
+        "both_held": 0
       }
     },
     "pinned-rules": {
@@ -264,18 +272,22 @@
         "stale_only": 16
       },
       "distinct_pairs": {
-        "d-launch-deadline+d-docs-deadline": {
+        "d-primary-region+d-backup-region": {
           "n": 8,
           "both_held": 0
         },
-        "d-oncall+d-reviewer": {
+        "d-prod-db+d-staging-db": {
           "n": 8,
           "both_held": 0
         },
-        "d-project-budget+d-travel-budget": {
+        "d-unit-tests+d-integration-tests": {
           "n": 8,
           "both_held": 8
         }
+      },
+      "distinct_pair_totals": {
+        "n": 24,
+        "both_held": 8
       }
     },
     "checklist-carrying": {
@@ -314,10 +326,10 @@
         },
         "s-oncall": {
           "n": 8,
-          "latest": 8,
+          "latest": 0,
           "stale": 8,
-          "both": 8,
-          "stale_only": 0,
+          "both": 0,
+          "stale_only": 8,
           "resolved": 0
         },
         "s-style": {
@@ -347,24 +359,28 @@
       },
       "conflict_totals": {
         "n": 64,
-        "latest": 16,
+        "latest": 8,
         "resolved": 0,
-        "both": 16,
-        "stale_only": 48
+        "both": 8,
+        "stale_only": 56
       },
       "distinct_pairs": {
-        "d-launch-deadline+d-docs-deadline": {
+        "d-primary-region+d-backup-region": {
           "n": 8,
           "both_held": 8
         },
-        "d-oncall+d-reviewer": {
+        "d-prod-db+d-staging-db": {
           "n": 8,
           "both_held": 8
         },
-        "d-project-budget+d-travel-budget": {
+        "d-unit-tests+d-integration-tests": {
           "n": 8,
           "both_held": 8
         }
+      },
+      "distinct_pair_totals": {
+        "n": 24,
+        "both_held": 24
       }
     },
     "update-aware-checklist": {
@@ -396,17 +412,17 @@
         "s-deadline": {
           "n": 8,
           "latest": 0,
-          "stale": 0,
+          "stale": 8,
           "both": 0,
-          "stale_only": 0,
+          "stale_only": 8,
           "resolved": 0
         },
         "s-oncall": {
           "n": 8,
-          "latest": 8,
+          "latest": 0,
           "stale": 8,
-          "both": 8,
-          "stale_only": 0,
+          "both": 0,
+          "stale_only": 8,
           "resolved": 0
         },
         "s-style": {
@@ -436,24 +452,681 @@
       },
       "conflict_totals": {
         "n": 64,
-        "latest": 16,
+        "latest": 8,
         "resolved": 0,
-        "both": 16,
-        "stale_only": 40
+        "both": 8,
+        "stale_only": 56
       },
       "distinct_pairs": {
-        "d-launch-deadline+d-docs-deadline": {
+        "d-primary-region+d-backup-region": {
           "n": 8,
           "both_held": 8
         },
-        "d-oncall+d-reviewer": {
+        "d-prod-db+d-staging-db": {
           "n": 8,
           "both_held": 8
         },
-        "d-project-budget+d-travel-budget": {
+        "d-unit-tests+d-integration-tests": {
           "n": 8,
           "both_held": 8
         }
+      },
+      "distinct_pair_totals": {
+        "n": 24,
+        "both_held": 24
+      }
+    },
+    "semantic-checklist": {
+      "conflicts": {
+        "s-branch": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "s-budget": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "s-codename": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "s-deadline": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "s-oncall": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "s-style": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "s-timezone": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "s-vault": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        }
+      },
+      "conflict_totals": {
+        "n": 64,
+        "latest": 64,
+        "resolved": 64,
+        "both": 0,
+        "stale_only": 0
+      },
+      "distinct_pairs": {
+        "d-primary-region+d-backup-region": {
+          "n": 8,
+          "both_held": 8
+        },
+        "d-prod-db+d-staging-db": {
+          "n": 8,
+          "both_held": 8
+        },
+        "d-unit-tests+d-integration-tests": {
+          "n": 8,
+          "both_held": 8
+        }
+      },
+      "distinct_pair_totals": {
+        "n": 24,
+        "both_held": 24
+      }
+    }
+  },
+  "heldout_by_compactor": {
+    "lossy-truncation": {
+      "conflicts": {
+        "h-branch": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-code": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-codename": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-release": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-spending": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-style": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-support": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-timezone": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        }
+      },
+      "conflict_totals": {
+        "n": 64,
+        "latest": 0,
+        "resolved": 0,
+        "both": 0,
+        "stale_only": 0
+      },
+      "distinct_pairs": {
+        "x-launch-date+x-docs-date": {
+          "n": 8,
+          "both_held": 0
+        },
+        "x-project-spending+x-conference-spending": {
+          "n": 8,
+          "both_held": 0
+        },
+        "x-release-approver+x-design-reviewer": {
+          "n": 8,
+          "both_held": 0
+        }
+      },
+      "distinct_pair_totals": {
+        "n": 24,
+        "both_held": 0
+      }
+    },
+    "naive-summary": {
+      "conflicts": {
+        "h-branch": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "h-code": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "h-codename": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-release": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-spending": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-style": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "h-support": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-timezone": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        }
+      },
+      "conflict_totals": {
+        "n": 64,
+        "latest": 24,
+        "resolved": 24,
+        "both": 0,
+        "stale_only": 0
+      },
+      "distinct_pairs": {
+        "x-launch-date+x-docs-date": {
+          "n": 8,
+          "both_held": 0
+        },
+        "x-project-spending+x-conference-spending": {
+          "n": 8,
+          "both_held": 0
+        },
+        "x-release-approver+x-design-reviewer": {
+          "n": 8,
+          "both_held": 0
+        }
+      },
+      "distinct_pair_totals": {
+        "n": 24,
+        "both_held": 0
+      }
+    },
+    "pinned-rules": {
+      "conflicts": {
+        "h-branch": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "h-code": {
+          "n": 8,
+          "latest": 8,
+          "stale": 8,
+          "both": 8,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-codename": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-release": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-spending": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-style": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "h-support": {
+          "n": 8,
+          "latest": 0,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 0
+        },
+        "h-timezone": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        }
+      },
+      "conflict_totals": {
+        "n": 64,
+        "latest": 24,
+        "resolved": 16,
+        "both": 8,
+        "stale_only": 16
+      },
+      "distinct_pairs": {
+        "x-launch-date+x-docs-date": {
+          "n": 8,
+          "both_held": 0
+        },
+        "x-project-spending+x-conference-spending": {
+          "n": 8,
+          "both_held": 8
+        },
+        "x-release-approver+x-design-reviewer": {
+          "n": 8,
+          "both_held": 0
+        }
+      },
+      "distinct_pair_totals": {
+        "n": 24,
+        "both_held": 8
+      }
+    },
+    "checklist-carrying": {
+      "conflicts": {
+        "h-branch": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-code": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-codename": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-release": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-spending": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-style": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-support": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-timezone": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        }
+      },
+      "conflict_totals": {
+        "n": 64,
+        "latest": 0,
+        "resolved": 0,
+        "both": 0,
+        "stale_only": 64
+      },
+      "distinct_pairs": {
+        "x-launch-date+x-docs-date": {
+          "n": 8,
+          "both_held": 8
+        },
+        "x-project-spending+x-conference-spending": {
+          "n": 8,
+          "both_held": 8
+        },
+        "x-release-approver+x-design-reviewer": {
+          "n": 8,
+          "both_held": 8
+        }
+      },
+      "distinct_pair_totals": {
+        "n": 24,
+        "both_held": 24
+      }
+    },
+    "update-aware-checklist": {
+      "conflicts": {
+        "h-branch": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-code": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-codename": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-release": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-spending": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-style": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-support": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        },
+        "h-timezone": {
+          "n": 8,
+          "latest": 0,
+          "stale": 8,
+          "both": 0,
+          "stale_only": 8,
+          "resolved": 0
+        }
+      },
+      "conflict_totals": {
+        "n": 64,
+        "latest": 0,
+        "resolved": 0,
+        "both": 0,
+        "stale_only": 64
+      },
+      "distinct_pairs": {
+        "x-launch-date+x-docs-date": {
+          "n": 8,
+          "both_held": 8
+        },
+        "x-project-spending+x-conference-spending": {
+          "n": 8,
+          "both_held": 8
+        },
+        "x-release-approver+x-design-reviewer": {
+          "n": 8,
+          "both_held": 8
+        }
+      },
+      "distinct_pair_totals": {
+        "n": 24,
+        "both_held": 24
+      }
+    },
+    "semantic-checklist": {
+      "conflicts": {
+        "h-branch": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "h-code": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "h-codename": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "h-release": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "h-spending": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "h-style": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "h-support": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        },
+        "h-timezone": {
+          "n": 8,
+          "latest": 8,
+          "stale": 0,
+          "both": 0,
+          "stale_only": 0,
+          "resolved": 8
+        }
+      },
+      "conflict_totals": {
+        "n": 64,
+        "latest": 64,
+        "resolved": 64,
+        "both": 0,
+        "stale_only": 0
+      },
+      "distinct_pairs": {
+        "x-launch-date+x-docs-date": {
+          "n": 8,
+          "both_held": 8
+        },
+        "x-project-spending+x-conference-spending": {
+          "n": 8,
+          "both_held": 8
+        },
+        "x-release-approver+x-design-reviewer": {
+          "n": 8,
+          "both_held": 8
+        }
+      },
+      "distinct_pair_totals": {
+        "n": 24,
+        "both_held": 24
       }
     }
   }

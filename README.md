@@ -245,11 +245,15 @@ latest statement per key, held 100% survival with stale presence at
 Re-stated updates are the easy case. The semantic corpus
 (`build_semantic_session(seed)`) plants paraphrased updates ("keep
 project spend under five hundred dollars" superseding a "$800 budget
-cap") plus distinct near-duplicates that must both survive (project vs
-travel budget). Across 8 seeds x 5 rounds, no current compactor
-resolves the semantic conflicts: the checklist preserves every distinct
-pair but misses most paraphrased updates, and value-masked keying
-resolves 0/64. Details: [sim/SEMANTIC_CORPUS.md](sim/SEMANTIC_CORPUS.md).
+cap") plus distinct near-duplicates that must both survive. Across
+8 seeds x 5 rounds, the checklist preserves every distinct pair but
+resolves 0/64 conflicts, and value-masked keying also resolves 0/64.
+The new `SemanticChecklistCompactor` classifies governed statements
+by domain and scope and keeps only the latest statement per identity:
+it resolves 64/64 conflicts and preserves 24/24 distinct pairs. A
+held-out corpus with new templates and subjects
+(`build_semantic_heldout_session(seed)`) gives the same 64/64 and
+24/24 result. Details: [sim/SEMANTIC_CORPUS.md](sim/SEMANTIC_CORPUS.md).
 
 ## The spike gate
 
@@ -269,7 +273,8 @@ breaks the separation breaks the build.
 | `src/compaction_kit/canaries.py` | Canary types and the seeded set |
 | `src/compaction_kit/session.py` | Scripted session with known canary positions |
 | `src/compaction_kit/corpus.py` | Randomized multi-seed session generator |
-| `src/compaction_kit/semantic_corpus.py` | Paraphrased-update conflicts and distinct near-duplicate items |
+| `src/compaction_kit/semantic_corpus.py` | Development and held-out paraphrased-update conflicts and distinct near-duplicate items |
+| `src/compaction_kit/semantic.py` | Dependency-free semantic update resolver (`SemanticChecklistCompactor`) |
 | `src/compaction_kit/compactors.py` | The `Compactor` protocol and reference implementations, including update-aware checklist, pinned rules, and summary-plus-tail mitigations |
 | `src/compaction_kit/probes.py` | Direct-recall, behavior, and exact-use probes |
 | `src/compaction_kit/simulated_agent.py` | $0 retrieval agent for probing |
@@ -282,7 +287,8 @@ breaks the separation breaks the build.
 | `tests/test_metric_hardening.py` | Cliff-round and exact-use tests |
 | `tests/test_corpus.py` | Multi-seed corpus and supersession tests |
 | `tests/test_mitigations.py` | Mitigation comparison tests |
-| `tests/test_semantic_corpus.py` | Semantic-conflict corpus tests (current failure encoded as diagnostic) |
+| `tests/test_semantic_corpus.py` | Semantic-conflict corpus tests, including the earlier compactors' diagnostic failure |
+| `tests/test_semantic.py` | Semantic resolver classification, stale-drop, false-merge, and held-out success tests |
 
 Extending it is one class at a time: a new compactor implements the
 protocol, a new probe implements `probe(canary, context_text)`.
@@ -291,6 +297,8 @@ protocol, a new probe implements `probe(canary, context_text)`.
 
 v0.1 spike, validated and pushed for review. Python 3.11+, zero
 dependencies, zero model spend for the default path. MIT license.
+The semantic resolver is on `main` ahead of the next package release;
+PyPI remains at 0.1.1.
 
 Not a compaction fix. A measurement. Fixes are easier to trust once
 something independent can say what they preserve, and what they lose.

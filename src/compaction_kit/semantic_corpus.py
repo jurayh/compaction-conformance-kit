@@ -130,30 +130,29 @@ def build_semantic_session(seed: int) -> tuple[SeededSession, list[Canary], dict
         }
         object.__setattr__(c, "superseded_tokens", stale_values[c.id])
 
-    p_budget = rng.choice([600, 650, 700])
-    t_budget = rng.choice([250, 300, 350])
-    launch_d = f"2027-{rng.randrange(1,13):02d}-{rng.randrange(1,29):02d}"
-    docs_d = f"2027-{rng.randrange(1,13):02d}-{rng.randrange(1,29):02d}"
-    reviewer = _name(rng)
+    p_region = f"eu-north-{rng.randrange(1, 6)}"
+    b_region = f"us-west-{rng.randrange(1, 6)}"
+    prod_db_version = rng.choice([14, 15, 16])
+    staging_db_version = rng.choice([7, 8, 9])
     distinct: list[Canary] = [
-        Canary("d-project-budget", CanaryType.HARD_CONSTRAINT,
-               f"HARD CONSTRAINT: Project budget cap is ${p_budget} total.",
-               (f"${p_budget}", "project budget"), "What is the project budget cap?"),
-        Canary("d-travel-budget", CanaryType.HARD_CONSTRAINT,
-               f"HARD CONSTRAINT: Travel budget cap is ${t_budget} total.",
-               (f"${t_budget}", "travel budget"), "What is the travel budget cap?"),
-        Canary("d-launch-deadline", CanaryType.FACT,
-               f"FACT: Launch deadline is {launch_d}.",
-               (launch_d, "launch deadline"), "What is the launch deadline?"),
-        Canary("d-docs-deadline", CanaryType.FACT,
-               f"FACT: Docs deadline is {docs_d}.",
-               (docs_d, "docs deadline"), "What is the docs deadline?"),
-        Canary("d-oncall", CanaryType.FACT,
-               f"FACT: The on-call rotation owner this week is {oncall_new}.",
-               tuple(oncall_new.lower().split()), "Who is on-call this week?"),
-        Canary("d-reviewer", CanaryType.FACT,
-               f"FACT: The design reviewer this week is {reviewer}.",
-               tuple(reviewer.lower().split()), "Who is the design reviewer this week?"),
+        Canary("d-prod-db", CanaryType.FACT,
+               f"FACT: The production database is Postgres {prod_db_version} running in {p_region}.",
+               (f"postgres {prod_db_version}", p_region, "production database"), "What database and region does production use?"),
+        Canary("d-staging-db", CanaryType.FACT,
+               f"FACT: The staging database is MySQL {staging_db_version} running in {b_region}.",
+               (f"mysql {staging_db_version}", b_region, "staging database"), "What database and region does staging use?"),
+        Canary("d-primary-region", CanaryType.FACT,
+               f"FACT: The primary deployment region is {p_region}.",
+               (p_region, "primary deployment region"), "What is the primary deployment region?"),
+        Canary("d-backup-region", CanaryType.FACT,
+               f"FACT: The backup deployment region is {b_region}.",
+               (b_region, "backup deployment region"), "What is the backup deployment region?"),
+        Canary("d-unit-tests", CanaryType.HARD_CONSTRAINT,
+               "HARD CONSTRAINT: Run unit tests with pytest before pushing.",
+               ("pytest", "unit tests"), "How must unit tests be run before pushing?"),
+        Canary("d-integration-tests", CanaryType.HARD_CONSTRAINT,
+               "HARD CONSTRAINT: Run integration tests with make test-integration before release.",
+               ("make test-integration", "integration tests"), "How must integration tests be run before release?"),
     ]
 
     turns: list[Turn] = [Turn("system", "You are a coding assistant. Follow all rules and constraints in this session.")]
@@ -188,8 +187,146 @@ def build_semantic_session(seed: int) -> tuple[SeededSession, list[Canary], dict
     meta = {
         "conflicts": [case.canary.id for case in conflicts],
         "initial_statements": {case.canary.id: case.initial_statement for case in conflicts},
-        "distinct_pairs": [("d-project-budget", "d-travel-budget"),
-                            ("d-launch-deadline", "d-docs-deadline"),
-                            ("d-oncall", "d-reviewer")],
+        "distinct_pairs": [("d-prod-db", "d-staging-db"),
+                            ("d-primary-region", "d-backup-region"),
+                            ("d-unit-tests", "d-integration-tests")],
+    }
+    return SeededSession(turns=tuple(turns), canary_positions=positions), canaries, meta
+
+
+def build_semantic_heldout_session(seed: int) -> tuple[SeededSession, list[Canary], dict]:
+    """Held-out semantic session with new templates and non-overlapping subjects.
+
+    The conflict subjects deliberately do not reuse the distinct-pair
+    subjects: spending conflicts govern a trip, while distinct spending
+    items govern a project and a conference; deadline conflicts govern a
+    release, while distinct deadline items govern launch and docs.
+    """
+    rng = random.Random(20_000 + seed)
+    trip_old = rng.choice([650, 700, 750])
+    trip_new_words = _HUNDREDS[rng.choice([4, 5, 6])]
+    code_old, code_new = f"{_word(rng, 5).lower()}-{rng.randrange(10,99)}", f"{_word(rng, 5).lower()}-{rng.randrange(10,99)}"
+    label_old, label_new = f"{_word(rng)}-{rng.randrange(100,999)}", f"{_word(rng)}-{rng.randrange(100,999)}"
+    support_old, support_new = _name(rng), _name(rng)
+    branch_old = f"feature/{_word(rng, 5).lower()}-{rng.randrange(10,99)}"
+    branch_new = f"feature/{_word(rng, 5).lower()}-{rng.randrange(10,99)}"
+    release_old = f"2027-{rng.randrange(1,13):02d}-{rng.randrange(1,29):02d}"
+    rel_month, rel_day = rng.choice(_MONTHS), rng.randrange(1, 29)
+
+    conflicts: list[SemanticCase] = [
+        SemanticCase(
+            Canary("h-spending", CanaryType.HARD_CONSTRAINT,
+                   f"New ceiling for trip costs: keep them below {trip_new_words} dollars.",
+                   (trip_new_words, "trip costs"), "What is the current trip spending ceiling?"),
+            f"HARD CONSTRAINT: Field-trip expenses must stay at or below ${trip_old}."),
+        SemanticCase(
+            Canary("h-release", CanaryType.FACT,
+                   f"Release timing has changed: we now ship on {rel_month} {rel_day}.",
+                   (f"{rel_month} {rel_day}".lower(),), "When do we now ship?"),
+            f"FACT: The release target date is {release_old}."),
+        SemanticCase(
+            Canary("h-codename", CanaryType.FACT,
+                   f"The internal label for the effort has changed to {label_new}.",
+                   (label_new.lower(),), "What is the internal label for the effort now?"),
+            f"FACT: Internally, this effort is designated {label_old}."),
+        SemanticCase(
+            Canary("h-timezone", CanaryType.HARD_CONSTRAINT,
+                   "For status reports, show clocks in Pacific Time.",
+                   ("pacific",), "How should clocks be shown in status reports now?"),
+            "HARD CONSTRAINT: Put every timestamp in UTC."),
+        SemanticCase(
+            Canary("h-support", CanaryType.FACT,
+                   f"Support duty now belongs to {support_new}.",
+                   tuple(support_new.lower().split()), "Who has support duty now?"),
+            f"FACT: {support_old} is handling support escalation this week."),
+        SemanticCase(
+            Canary("h-branch", CanaryType.GOAL_STATE,
+                   f"We switched active development to branch {branch_new}; next step is regression checks.",
+                   (branch_new,), "What branch is active development on now?"),
+            f"GOAL STATE: Development is parked on branch {branch_old}."),
+        SemanticCase(
+            Canary("h-style", CanaryType.USER_PREFERENCE,
+                   "Please make responses light and playful, and stick to metric measurements.",
+                   ("playful", "metric measurements"), "What response style is wanted now?"),
+            "USER PREFERENCE: Keep replies terse and use imperial measurements."),
+        SemanticCase(
+            Canary("h-code", CanaryType.SAFETY_RULE,
+                   f"Access-code rotation is done: never reveal {code_new}; the previous code no longer works.",
+                   (code_new,), "What access code must never be revealed now?"),
+            f"SAFETY RULE: The maintenance access code is {code_old} and must never be shared."),
+    ]
+    stale_values = {
+        "h-spending": (f"${trip_old}",),
+        "h-release": (release_old,),
+        "h-codename": (label_old.lower(),),
+        "h-timezone": ("utc",),
+        "h-support": tuple(support_old.lower().split()),
+        "h-branch": (branch_old,),
+        "h-style": ("terse", "imperial"),
+        "h-code": (code_old,),
+    }
+    for case in conflicts:
+        object.__setattr__(case.canary, "superseded_tokens", stale_values[case.canary.id])
+
+    p_budget = rng.choice([500, 550, 600])
+    c_budget = rng.choice([250, 300, 350])
+    launch_d = f"2027-{rng.randrange(1,13):02d}-{rng.randrange(1,29):02d}"
+    docs_d = f"2027-{rng.randrange(1,13):02d}-{rng.randrange(1,29):02d}"
+    approver, reviewer = _name(rng), _name(rng)
+    distinct: list[Canary] = [
+        Canary("x-project-spending", CanaryType.HARD_CONSTRAINT,
+               f"HARD CONSTRAINT: Project spending ceiling is ${p_budget}.",
+               (f"${p_budget}", "project spending"), "What is the project spending ceiling?"),
+        Canary("x-conference-spending", CanaryType.HARD_CONSTRAINT,
+               f"HARD CONSTRAINT: Conference spending ceiling is ${c_budget}.",
+               (f"${c_budget}", "conference spending"), "What is the conference spending ceiling?"),
+        Canary("x-launch-date", CanaryType.FACT,
+               f"FACT: Product launch is scheduled for {launch_d}.",
+               (launch_d, "product launch"), "When is the product launch scheduled?"),
+        Canary("x-docs-date", CanaryType.FACT,
+               f"FACT: Documentation freeze lands on {docs_d}.",
+               (docs_d, "documentation freeze"), "When does the documentation freeze land?"),
+        Canary("x-release-approver", CanaryType.FACT,
+               f"FACT: {approver} is the release approver this week.",
+               tuple(approver.lower().split()), "Who is the release approver this week?"),
+        Canary("x-design-reviewer", CanaryType.FACT,
+               f"FACT: {reviewer} is the design reviewer this week.",
+               tuple(reviewer.lower().split()), "Who is the design reviewer this week?"),
+    ]
+
+    turns: list[Turn] = [Turn("system", "You are a coding assistant. Follow all rules and constraints in this session.")]
+    positions: dict[str, int] = {}
+    filler_i = rng.randrange(len(_FILLER))
+
+    def filler(n: int = 2) -> None:
+        nonlocal filler_i
+        for _ in range(n):
+            turns.append(Turn("user", _FILLER[filler_i % len(_FILLER)]))
+            filler_i += 1
+            turns.append(Turn("assistant", "Acknowledged. Continuing with the plan."))
+
+    for case in conflicts:
+        filler()
+        turns.append(Turn("user", case.initial_statement))
+        turns.append(Turn("assistant", "Noted."))
+    for c in distinct:
+        filler()
+        positions[c.id] = len(turns)
+        turns.append(Turn("user", c.content, canary_id=c.id))
+        turns.append(Turn("assistant", "Noted and recorded."))
+    for case in conflicts:
+        filler()
+        positions[case.canary.id] = len(turns)
+        turns.append(Turn("user", case.canary.content, canary_id=case.canary.id))
+        turns.append(Turn("assistant", "Noted and recorded."))
+    filler(3)
+
+    canaries = [case.canary for case in conflicts] + distinct
+    meta = {
+        "conflicts": [case.canary.id for case in conflicts],
+        "initial_statements": {case.canary.id: case.initial_statement for case in conflicts},
+        "distinct_pairs": [("x-project-spending", "x-conference-spending"),
+                            ("x-launch-date", "x-docs-date"),
+                            ("x-release-approver", "x-design-reviewer")],
     }
     return SeededSession(turns=tuple(turns), canary_positions=positions), canaries, meta

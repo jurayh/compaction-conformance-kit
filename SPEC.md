@@ -20,13 +20,15 @@
   paraphrased updates supersede earlier statements in different words,
   and distinct near-duplicate items (same vocabulary, different scope)
   must both survive, so semantic resolution and false merging are
-  measured separately.
+  measured separately. `build_semantic_heldout_session(seed)` provides
+  the same measures with new templates and non-overlapping subjects.
 - **Compactor** (protocol) — `compact(turns: list[Turn], round_num) ->
   CompactedContext`. Any implementation qualifies: truncation, LLM
   summary, structured extraction, a product's real `/compact`.
   Reference implementations include lossy and structure-preserving
-  baselines plus mitigations (update-aware checklist, pinned rules,
-  summary-plus-tail) so fixes can be scored on the same axes.
+  baselines plus mitigations (update-aware checklist, semantic
+  checklist, pinned rules, summary-plus-tail) so fixes can be scored
+  on the same axes.
 - **CompactedContext** — `text` (what the agent sees), `compactor_name`,
   `round_num`, optional `structured` sections.
 - **Probe** — `probe(canary, context_text) -> ProbeResult`.

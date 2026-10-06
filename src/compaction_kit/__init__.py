@@ -20,7 +20,8 @@ from .corpus import build_random_session, position_bucket
 from .probes import BehaviorProbe, DirectRecallProbe, ExactUseProbe, ProbeResult
 from .report import ConformanceReport, build_report
 from .runner import RoundResult, run_conformance
-from .semantic_corpus import build_semantic_session
+from .semantic import SemanticChecklistCompactor
+from .semantic_corpus import build_semantic_heldout_session, build_semantic_session
 from .session import SeededSession, Turn, build_seeded_session
 from .simulated_agent import SimulatedAgent, SimulatedAnswer
 
@@ -41,12 +42,14 @@ __all__ = [
     "ProbeResult",
     "RoundResult",
     "SeededSession",
+    "SemanticChecklistCompactor",
     "SimulatedAgent",
     "SimulatedAnswer",
     "SummaryTailCompactor",
     "Turn",
     "UpdateAwareChecklistCompactor",
     "build_random_session",
+    "build_semantic_heldout_session",
     "build_semantic_session",
     "build_report",
     "build_seeded_session",

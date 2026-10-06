@@ -1,8 +1,10 @@
-"""Semantic-conflict corpus run.
+"""Semantic-conflict corpus runs: development and held-out sessions.
 
 For each seed, builds a semantic session, runs every compactor for 5
 rounds, and measures: conflict latest-held vs stale-carried, and
-distinct near-duplicate pairs both-held. Writes
+distinct near-duplicate pairs both-held. The held-out sessions use new
+templates and non-overlapping subjects so resolver performance is not
+judged only on the development wording. Writes
 examples/semantic-corpus-results.json. No canary values are printed.
 """
 
@@ -23,7 +25,11 @@ from compaction_kit.compactors import (
     UpdateAwareChecklistCompactor,
 )
 from compaction_kit.runner import run_conformance
-from compaction_kit.semantic_corpus import build_semantic_session
+from compaction_kit.semantic import SemanticChecklistCompactor
+from compaction_kit.semantic_corpus import (
+    build_semantic_heldout_session,
+    build_semantic_session,
+)
 
 SEEDS = list(range(1, 9))
 ROUNDS = 5
@@ -33,48 +39,84 @@ COMPACTORS = [
     PinnedRulesCompactor(),
     ChecklistCompactor(),
     UpdateAwareChecklistCompactor(),
+    SemanticChecklistCompactor(),
 ]
 
 
+def evaluate(compactor, builder) -> dict:
+    conf = defaultdict(lambda: {
+        "n": 0, "latest": 0, "stale": 0, "both": 0,
+        "stale_only": 0, "resolved": 0,
+    })
+    pairs = defaultdict(lambda: {"n": 0, "both_held": 0})
+    for seed in SEEDS:
+        session, canaries, meta = builder(seed)
+        run = run_conformance(session, compactor, rounds=ROUNDS, canaries=canaries)
+        final = run.rounds[-1]
+        text = final.context.text.lower()
+        for cid in meta["conflicts"]:
+            canary = next(item for item in canaries if item.id == cid)
+            latest = all(token.lower() in text for token in canary.required_tokens)
+            stale = any(token.lower() in text for token in canary.superseded_tokens)
+            entry = conf[cid]
+            entry["n"] += 1
+            entry["latest"] += int(latest)
+            entry["stale"] += int(stale)
+            entry["both"] += int(latest and stale)
+            entry["stale_only"] += int(stale and not latest)
+            entry["resolved"] += int(latest and not stale)
+        for first, second in meta["distinct_pairs"]:
+            key = f"{first}+{second}"
+            pairs[key]["n"] += 1
+            pairs[key]["both_held"] += int(
+                final.survived.get(first) and final.survived.get(second)
+            )
+    return {
+        "conflicts": {key: dict(value) for key, value in sorted(conf.items())},
+        "conflict_totals": {
+            "n": sum(value["n"] for value in conf.values()),
+            "latest": sum(value["latest"] for value in conf.values()),
+            "resolved": sum(value["resolved"] for value in conf.values()),
+            "both": sum(value["both"] for value in conf.values()),
+            "stale_only": sum(value["stale_only"] for value in conf.values()),
+        },
+        "distinct_pairs": {
+            key: dict(value) for key, value in sorted(pairs.items())
+        },
+        "distinct_pair_totals": {
+            "n": sum(value["n"] for value in pairs.values()),
+            "both_held": sum(value["both_held"] for value in pairs.values()),
+        },
+    }
+
+
+def print_result(label: str, name: str, result: dict) -> None:
+    totals = result["conflict_totals"]
+    pairs = result["distinct_pair_totals"]
+    print(
+        f"== [{label}] {name}: conflicts latest {totals['latest']}/{totals['n']}, "
+        f"resolved {totals['resolved']}/{totals['n']}, both {totals['both']}, "
+        f"stale_only {totals['stale_only']}; distinct pairs "
+        f"{pairs['both_held']}/{pairs['n']}"
+    )
+
+
 def main() -> None:
-    payload = {"seeds": SEEDS, "rounds": ROUNDS, "by_compactor": {}}
-    for compactor in COMPACTORS:
-        conf = defaultdict(lambda: {"n": 0, "latest": 0, "stale": 0, "both": 0, "stale_only": 0, "resolved": 0})
-        pairs = defaultdict(lambda: {"n": 0, "both_held": 0})
-        for seed in SEEDS:
-            session, canaries, meta = build_semantic_session(seed)
-            run = run_conformance(session, compactor, rounds=ROUNDS, canaries=canaries)
-            final = run.rounds[-1]
-            text = final.context.text.lower()
-            for cid in meta["conflicts"]:
-                c = next(x for x in canaries if x.id == cid)
-                latest = all(t.lower() in text for t in c.required_tokens)
-                stale = any(t.lower() in text for t in c.superseded_tokens)
-                d = conf[cid]
-                d["n"] += 1
-                d["latest"] += int(latest)
-                d["stale"] += int(stale)
-                d["both"] += int(latest and stale)
-                d["stale_only"] += int(stale and not latest)
-                d["resolved"] += int(latest and not stale)
-            for a, b in meta["distinct_pairs"]:
-                key = f"{a}+{b}"
-                pairs[key]["n"] += 1
-                pairs[key]["both_held"] += int(final.survived.get(a) and final.survived.get(b))
-        payload["by_compactor"][compactor.name] = {
-            "conflicts": {k: dict(v) for k, v in sorted(conf.items())},
-            "conflict_totals": {
-                "n": sum(v["n"] for v in conf.values()),
-                "latest": sum(v["latest"] for v in conf.values()),
-                "resolved": sum(v["resolved"] for v in conf.values()),
-                "both": sum(v["both"] for v in conf.values()),
-                "stale_only": sum(v["stale_only"] for v in conf.values()),
-            },
-            "distinct_pairs": {k: dict(v) for k, v in sorted(pairs.items())},
-        }
-        t = payload["by_compactor"][compactor.name]["conflict_totals"]
-        print(f"== {compactor.name}: conflicts latest {t['latest']}/{t['n']}, resolved {t['resolved']}/{t['n']}, both {t['both']}, stale_only {t['stale_only']}")
-        print("   distinct pairs:", payload["by_compactor"][compactor.name]["distinct_pairs"])
+    payload = {
+        "seeds": SEEDS,
+        "rounds": ROUNDS,
+        "by_compactor": {},
+        "heldout_by_compactor": {},
+    }
+    corpora = [
+        ("development", build_semantic_session, "by_compactor"),
+        ("heldout", build_semantic_heldout_session, "heldout_by_compactor"),
+    ]
+    for label, builder, payload_key in corpora:
+        for compactor in COMPACTORS:
+            result = evaluate(compactor, builder)
+            payload[payload_key][compactor.name] = result
+            print_result(label, compactor.name, result)
 
     out = Path(__file__).resolve().parents[1] / "examples" / "semantic-corpus-results.json"
     out.write_text(json.dumps(payload, indent=2))
