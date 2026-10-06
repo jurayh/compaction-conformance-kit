@@ -56,8 +56,9 @@ Reproduce: `python3 tools/run_budget_benchmark.py`, or
 | 3 | pinned-rules | 40.0% | 0.0% | 48/128 | 33.3% |
 | 4 | checklist-carrying | 35.0% | 0.0% | 96/128 | 50.0% |
 | 5 | lossy-truncation | 0.0% | 0.0% | 0/128 | 0.0% |
-| 6 | summary-plus-tail | 0.0% | 0.0% | 0/128 | 0.0% |
-| 7 | naive-summary | 0.0% | 0.0% | 0/128 | 0.0% |
+| 6 | progressive-summary | 0.0% | 0.0% | 0/128 | 0.0% |
+| 7 | summary-plus-tail | 0.0% | 0.0% | 0/128 | 0.0% |
+| 8 | naive-summary | 0.0% | 0.0% | 0/128 | 0.0% |
 
 ### Budget 20%
 
@@ -68,8 +69,9 @@ Reproduce: `python3 tools/run_budget_benchmark.py`, or
 | 3 | checklist-carrying | 60.0% | 0.0% | 128/128 | 100.0% |
 | 4 | pinned-rules | 40.0% | 0.0% | 48/128 | 33.3% |
 | 5 | naive-summary | 10.0% | 25.0% | 0/128 | 0.0% |
-| 6 | summary-plus-tail | 5.0% | 12.5% | 0/128 | 0.0% |
-| 7 | lossy-truncation | 0.0% | 0.0% | 0/128 | 0.0% |
+| 6 | progressive-summary | 5.0% | 12.5% | 0/128 | 0.0% |
+| 7 | summary-plus-tail | 5.0% | 12.5% | 0/128 | 0.0% |
+| 8 | lossy-truncation | 0.0% | 0.0% | 0/128 | 0.0% |
 
 ### Budget 30%
 
@@ -80,12 +82,16 @@ Reproduce: `python3 tools/run_budget_benchmark.py`, or
 | 3 | checklist-carrying | 100.0% | 0.0% | 128/128 | 100.0% |
 | 4 | pinned-rules | 46.9% | 25.0% | 48/128 | 33.3% |
 | 5 | naive-summary | 15.0% | 37.5% | 0/128 | 0.0% |
-| 6 | summary-plus-tail | 8.1% | 25.0% | 0/128 | 0.0% |
-| 7 | lossy-truncation | 0.0% | 0.0% | 0/128 | 0.0% |
+| 6 | progressive-summary | 10.0% | 25.0% | 0/128 | 0.0% |
+| 7 | summary-plus-tail | 8.1% | 25.0% | 0/128 | 0.0% |
+| 8 | lossy-truncation | 0.0% | 0.0% | 0/128 | 0.0% |
 
-All seven reference compactors are budget-compliant at all three
-budgets; the differences above are preservation differences, not
-compliance differences.
+All eight compactors are budget-compliant at all three budgets; the
+differences above are preservation differences, not compliance
+differences. `progressive-summary` is an external pattern (the
+LangChain-style summary-buffer design, see
+[ADAPTERS.md](ADAPTERS.md)); it joined the leaderboard through the
+same protocol with no special-casing.
 
 ## Findings
 
@@ -126,7 +132,8 @@ compliance differences.
 - The corpora are synthetic. The benchmark measures the compaction
   operation under controlled ground truth; real-trace evaluation is
   the next validation layer.
-- The leaderboard ranks the kit's reference compactors. External
-  compactors join through the same `budget_chars` protocol; a
-  compactor that does not accept a budget can be measured but cannot
-  be compliant.
+- The leaderboard ranks the kit's reference compactors plus one
+  external pattern (progressive summary). Other external compactors
+  join through the same `budget_chars` protocol, or by scoring
+  saved output with `compaction-kit score`; a compactor that does
+  not accept a budget can be measured but cannot be compliant.

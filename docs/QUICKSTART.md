@@ -67,6 +67,17 @@ eligible for the budget benchmark: when it is passed, that round's
 output must fit within it. Older two-argument implementations still
 work with `demo`, `report`, and `corpus`.
 
+## 7. Or score output you already produced
+
+```bash
+compaction-kit score --compacted output.txt --name my-product
+```
+
+Run your product's `/compact` on the seeded transcript, save the
+output, and score the file. Exit 0 means no canary type is flagged.
+For your own transcripts, pass `--canaries canaries.json` with your
+own canary definitions.
+
 Runnable version: [../examples/measure_your_compactor.py](../examples/measure_your_compactor.py).
 Swap the toy summarizer for your LLM call or your framework's compact
 function; the probes, rounds, and report stay the same.

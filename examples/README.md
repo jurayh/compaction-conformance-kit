@@ -10,6 +10,7 @@ Every demo runs with no API key and no model calls.
 | CI gate | `compaction-kit report --compactor update-aware-checklist` | Exit 0 when clean, exit 1 on FLAG or late cliff |
 | Randomized corpus | `compaction-kit corpus --seeds 1-12` | Survival medians across 12 generated sessions, JSON output |
 | Budget benchmark | `compaction-kit benchmark --budgets 10%,20%,30%` | Fixed-budget leaderboard across the randomized and semantic suites |
+| Score external output | `compaction-kit score --compacted output.txt` | Per-type report for a saved /compact output from any product |
 | Measure your own compactor | `python3 examples/measure_your_compactor.py` | A custom compactor in about 20 lines, scored by the kit |
 | Recorded CLI output | [demo_cli.md](demo_cli.md) | Verbatim output of the three commands above |
 
@@ -44,3 +45,6 @@ Every demo runs with no API key and no model calls.
 - [../sim/BUDGET_BENCHMARK.md](../sim/BUDGET_BENCHMARK.md) — what
   survives at fixed 10/20/30% output budgets, and why over-preservation
   stops being free once size is capped.
+- [../sim/ADAPTERS.md](../sim/ADAPTERS.md) — external compactors on
+  the leaderboard (LangChain-style progressive summary) and scoring
+  output produced by any product.

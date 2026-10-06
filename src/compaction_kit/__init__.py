@@ -4,6 +4,7 @@ Measures what an agent's context compaction actually preserves,
 by planting typed canaries and probing survival across rounds.
 """
 
+from .adapters import PrecomputedCompactor, ProgressiveSummaryCompactor
 from .benchmark import budget_benchmark_to_markdown, run_budget_benchmark
 from .canaries import Canary, CanaryType, seeded_canaries
 from .compacted import CompactedContext
@@ -25,6 +26,7 @@ from .semantic import SemanticChecklistCompactor
 from .semantic_corpus import build_semantic_heldout_session, build_semantic_session
 from .session import SeededSession, Turn, build_seeded_session
 from .simulated_agent import SimulatedAgent, SimulatedAnswer
+from .transcripts import load_canaries, load_transcript, score_compacted_output
 
 __all__ = [
     "BehaviorProbe",
@@ -40,7 +42,9 @@ __all__ = [
     "LossyTruncationCompactor",
     "NaiveSummaryCompactor",
     "PinnedRulesCompactor",
+    "PrecomputedCompactor",
     "ProbeResult",
+    "ProgressiveSummaryCompactor",
     "RoundResult",
     "SeededSession",
     "SemanticChecklistCompactor",
@@ -55,8 +59,11 @@ __all__ = [
     "build_report",
     "build_seeded_session",
     "budget_benchmark_to_markdown",
+    "load_canaries",
+    "load_transcript",
     "position_bucket",
     "run_budget_benchmark",
     "run_conformance",
+    "score_compacted_output",
     "seeded_canaries",
 ]

@@ -52,6 +52,7 @@ Three more commands:
 compaction-kit report --compactor update-aware-checklist   # CI gate: exit 1 on FLAG or late cliff
 compaction-kit corpus --seeds 1-12                         # randomized multi-session run, JSON
 compaction-kit benchmark --budgets 10%,20%,30%             # fixed-budget leaderboard, markdown
+compaction-kit score --compacted output.txt                # score your product's saved /compact output
 ```
 
 Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md).
@@ -279,6 +280,25 @@ Custom compactors join by accepting the optional `budget_chars`
 keyword in `compact()`; older two-argument compactors still run and
 are marked non-compliant when their output exceeds the budget.
 
+## External compactors
+
+The leaderboard is not limited to compactors written for this kit.
+`progressive-summary` implements the summary-buffer pattern from
+LangChain's ConversationSummaryBufferMemory (running summary plus a
+verbatim recent-turn buffer) and ranks with the unstructured
+summarizers, below every structure-preserving compactor.
+
+And the kit does not need to run your compactor at all. Run your
+product's `/compact`, save the output, and score it:
+
+```bash
+compaction-kit score --compacted output.txt --name my-product
+```
+
+Default ground truth is the seeded session's canaries;
+`--canaries canaries.json` scores against your own definitions for
+your own transcripts. Details: [sim/ADAPTERS.md](sim/ADAPTERS.md).
+
 ## The spike gate
 
 This kit exists only because it passed a kill criterion set before the
@@ -300,6 +320,8 @@ breaks the separation breaks the build.
 | `src/compaction_kit/semantic_corpus.py` | Development and held-out paraphrased-update conflicts and distinct near-duplicate items |
 | `src/compaction_kit/semantic.py` | Dependency-free semantic update resolver (`SemanticChecklistCompactor`) |
 | `src/compaction_kit/benchmark.py` | Fixed-budget benchmark: randomized + semantic suites, compliance, and leaderboard ranking |
+| `src/compaction_kit/adapters.py` | External-pattern adapters: LangChain-style progressive summary, and replay of precomputed output |
+| `src/compaction_kit/transcripts.py` | External transcript loading, custom canary loading, and scoring of externally produced output |
 | `src/compaction_kit/compactors.py` | The `Compactor` protocol and reference implementations, including update-aware checklist, pinned rules, and summary-plus-tail mitigations |
 | `src/compaction_kit/probes.py` | Direct-recall, behavior, and exact-use probes |
 | `src/compaction_kit/simulated_agent.py` | $0 retrieval agent for probing |
@@ -315,6 +337,7 @@ breaks the separation breaks the build.
 | `tests/test_semantic_corpus.py` | Semantic-conflict corpus tests, including the earlier compactors' diagnostic failure |
 | `tests/test_semantic.py` | Semantic resolver classification, stale-drop, false-merge, and held-out success tests |
 | `tests/test_budget.py` | Budget protocol compatibility, compliance, priority, and benchmark ranking tests |
+| `tests/test_adapters.py` | External adapter, transcript loading, and score-command tests |
 
 Extending it is one class at a time: a new compactor implements the
 protocol, a new probe implements `probe(canary, context_text)`.

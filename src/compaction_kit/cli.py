@@ -6,6 +6,7 @@ Commands:
           flagged at round 1 or hits a late cliff, else 0
   corpus  randomized multi-seed corpus run, aggregated as JSON
   benchmark  fixed-budget leaderboard across randomized and semantic suites
+  score   score externally produced compacted output from a file
 
 No API key, no model calls.
 """
@@ -26,12 +27,15 @@ from .compactors import (
     SummaryTailCompactor,
     UpdateAwareChecklistCompactor,
 )
+from .adapters import ProgressiveSummaryCompactor
 from .benchmark import budget_benchmark_to_markdown, run_budget_benchmark
+from .canaries import seeded_canaries
 from .corpus import build_random_session
 from .report import build_report
 from .runner import run_conformance
 from .semantic import SemanticChecklistCompactor
 from .session import build_seeded_session
+from .transcripts import load_canaries, score_compacted_output
 
 COMPACTORS = {
     "lossy-truncation": LossyTruncationCompactor,
@@ -41,6 +45,7 @@ COMPACTORS = {
     "checklist-carrying": ChecklistCompactor,
     "update-aware-checklist": UpdateAwareChecklistCompactor,
     "semantic-checklist": SemanticChecklistCompactor,
+    "progressive-summary": ProgressiveSummaryCompactor,
 }
 
 
@@ -150,6 +155,19 @@ def _cmd_benchmark(args) -> int:
     return 0
 
 
+def _cmd_score(args) -> int:
+    from pathlib import Path
+
+    compacted_text = Path(args.compacted).read_text()
+    canaries = load_canaries(args.canaries) if args.canaries else seeded_canaries()
+    report = score_compacted_output(compacted_text, canaries, compactor_name=args.name)
+    if args.format == "json":
+        print(report.to_json())
+    else:
+        print(report.to_markdown())
+    return 1 if report.flagged_types else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="compaction-kit", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -181,6 +199,15 @@ def main(argv: list[str] | None = None) -> int:
     p_benchmark.add_argument("--rounds", type=int, default=5)
     p_benchmark.add_argument("--format", choices=["md", "json"], default="md")
     p_benchmark.set_defaults(fn=_cmd_benchmark)
+
+    p_score = sub.add_parser(
+        "score", help="score externally produced compacted output (CI exit codes)"
+    )
+    p_score.add_argument("--compacted", required=True, help="file containing the compacted context text")
+    p_score.add_argument("--canaries", default=None, help="JSON canary definitions (default: the seeded canaries)")
+    p_score.add_argument("--name", default="external", help="label for the external compactor")
+    p_score.add_argument("--format", choices=["md", "json"], default="md")
+    p_score.set_defaults(fn=_cmd_score)
 
     args = parser.parse_args(argv)
     return args.fn(args)
