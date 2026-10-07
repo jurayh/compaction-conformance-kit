@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "compaction-conformance-kit"
-version = "0.3.0"
+version = "0.3.1"
 description = "Find out what your AI agent forgets when context compaction runs: typed canaries, per-type survival curves, and cliff detection for safety rules, facts, and task state."
 readme = "README.md"
 requires-python = ">=3.11"
