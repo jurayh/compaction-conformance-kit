@@ -62,6 +62,10 @@ echo $?   # 0 = clean, 1 = any type flagged
 - The default gist is not an LLM. With a real summarizer the
   progressive adapter's numbers will move; the point of the default
   is a reproducible, dependency-free baseline for the pattern.
+- At extremely small budgets (roughly under 100 characters) the
+  summary-plus-buffer structure itself no longer fits, so the
+  adapter degrades to a header fragment. The benchmark budgets
+  (10% and up) are far above that floor.
 - Scoring external output requires ground truth. The kit supplies
   it for its own sessions and corpora; for production transcripts,
   you supply canaries for the facts and rules you care about.

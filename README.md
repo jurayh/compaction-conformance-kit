@@ -36,7 +36,7 @@ compaction-kit demo
 
 No API key. No model calls. $0.
 
-What you will see: three compactors run five rounds each on the same
+What you will see: eight compactors run five rounds each on the same
 seeded session. Truncation flags on safety rules in round 1. The
 update-aware checklist stays silent and loses nothing. The report looks
 like this (abbreviated):
@@ -46,7 +46,7 @@ like this (abbreviated):
 | safety_rule | 25% | 25%, 0%, 0%, 0%, 0% | FLAG | round 1 |
 | user_preference | 100% | 100% across all rounds | SILENT | none |
 
-Three more commands:
+Four more commands:
 
 ```bash
 compaction-kit report --compactor update-aware-checklist   # CI gate: exit 1 on FLAG or late cliff
@@ -348,7 +348,10 @@ v0.3 release. Python 3.11+, zero dependencies, zero model spend for
 the default path. MIT license. The 0.3.0 release adds the fixed-budget
 benchmark and external adapters, including a LangChain-style
 progressive summarizer and scoring for compacted output produced by
-other systems.
+other systems. The 0.3.1 patch hardens the CLI against false-clean
+results: invalid rounds, seed, and budget specifications now fail
+with a usage error instead of silently measuring nothing, and
+`score` rejects empty or malformed canary definitions.
 
 Not a compaction fix. A measurement. Fixes are easier to trust once
 something independent can say what they preserve, and what they lose.

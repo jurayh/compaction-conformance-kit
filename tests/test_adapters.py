@@ -117,3 +117,50 @@ def test_cli_score_exit_codes(tmp_path=None):
         with contextlib.redirect_stdout(io.StringIO()):
             assert cli_main(["score", "--compacted", str(good_path)]) == 0
             assert cli_main(["score", "--compacted", str(bad_path)]) == 1
+
+
+def test_score_rejects_empty_canaries_and_string_tokens(tmp_path=None):
+    import contextlib
+    import io
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "out.txt"
+        out.write_text("x")
+        empty = Path(tmp) / "empty.json"
+        empty.write_text("[]")
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            assert cli_main(["score", "--compacted", str(out), "--canaries", str(empty)]) == 2
+
+        string_tokens = Path(tmp) / "string.json"
+        string_tokens.write_text(json.dumps([{
+            "id": "x", "type": "fact", "content": "x marks it",
+            "required_tokens": "x", "direct_question": "?",
+        }]))
+        try:
+            load_canaries(string_tokens)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("string required_tokens must be rejected")
+
+    try:
+        score_compacted_output("anything", [])
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("empty canary list must be rejected")
+
+
+def test_load_transcript_rejects_object_without_turns(tmp_path=None):
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "t.json"
+        path.write_text('{"messages": []}')
+        try:
+            load_transcript(path)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("JSON object without 'turns' must be rejected")

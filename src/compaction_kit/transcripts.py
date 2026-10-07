@@ -32,15 +32,23 @@ def load_transcript(path: str | Path) -> list[Turn]:
     suffix = Path(path).suffix.lower()
     if suffix == ".jsonl":
         turns = []
-        for line in raw.splitlines():
+        for lineno, line in enumerate(raw.splitlines(), start=1):
             line = line.strip()
             if line:
-                turns.append(_turn_from_obj(json.loads(line)))
+                try:
+                    obj = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise ValueError(f"{path}: line {lineno}: invalid JSON: {exc}") from exc
+                turns.append(_turn_from_obj(obj))
         return turns
     if suffix == ".json":
         data = json.loads(raw)
         if isinstance(data, dict):
-            data = data.get("turns", [])
+            if "turns" not in data:
+                raise ValueError("JSON transcript object must have a 'turns' list")
+            data = data["turns"]
+        if not isinstance(data, list):
+            raise ValueError("JSON transcript must be a list of turns")
         return [_turn_from_obj(obj) for obj in data]
     turns = []
     for line in raw.splitlines():
@@ -53,9 +61,21 @@ def load_transcript(path: str | Path) -> list[Turn]:
 
 
 def _turn_from_obj(obj: dict) -> Turn:
+    if not isinstance(obj, dict):
+        raise ValueError(f"transcript turn must be an object, got {type(obj).__name__}")
     role = str(obj.get("role", "user")).lower()
     text = obj.get("content", obj.get("text", ""))
-    return Turn(role, str(text))
+    return Turn(role, "" if text is None else str(text))
+
+
+def _token_list(obj: dict, field: str, canary_id: str) -> tuple[str, ...]:
+    value = obj.get(field, [])
+    if isinstance(value, str) or not isinstance(value, (list, tuple)):
+        raise ValueError(
+            f"canary {canary_id}: {field} must be a JSON list of strings, "
+            f"got {type(value).__name__}"
+        )
+    return tuple(str(v) for v in value)
 
 
 def load_canaries(path: str | Path) -> list[Canary]:
@@ -68,19 +88,26 @@ def load_canaries(path: str | Path) -> list[Canary]:
     "exact_use_required_tokens".
     """
     data = json.loads(Path(path).read_text())
+    if not isinstance(data, list):
+        raise ValueError("canary file must be a JSON list of canary objects")
     canaries = []
-    for obj in data:
+    for index, obj in enumerate(data):
+        if not isinstance(obj, dict):
+            raise ValueError(f"canary entry {index} must be an object")
+        for field in ("id", "type", "content", "required_tokens"):
+            if field not in obj:
+                raise ValueError(f"canary entry {index} is missing field {field!r}")
         canaries.append(Canary(
             id=obj["id"],
             type=CanaryType(obj["type"]),
             content=obj["content"],
-            required_tokens=tuple(obj["required_tokens"]),
+            required_tokens=_token_list(obj, "required_tokens", obj["id"]),
             direct_question=obj.get("direct_question", ""),
-            superseded_tokens=tuple(obj.get("superseded_tokens", ())),
+            superseded_tokens=_token_list(obj, "superseded_tokens", obj["id"]),
             behavior_scenario=obj.get("behavior_scenario") or "",
-            behavior_required_tokens=tuple(obj.get("behavior_required_tokens", ())),
+            behavior_required_tokens=_token_list(obj, "behavior_required_tokens", obj["id"]),
             exact_use_scenario=obj.get("exact_use_scenario") or "",
-            exact_use_required_tokens=tuple(obj.get("exact_use_required_tokens", ())),
+            exact_use_required_tokens=_token_list(obj, "exact_use_required_tokens", obj["id"]),
         ))
     return canaries
 
@@ -91,6 +118,8 @@ def score_compacted_output(
     compactor_name: str = "external",
 ) -> ConformanceReport:
     """Probe one externally produced compacted context and report."""
+    if not canaries:
+        raise ValueError("no canaries to score against")
     survived = _probe_all(canaries, compacted_text)
     run = ConformanceRun(compactor_name=compactor_name)
     run.rounds.append(RoundResult(

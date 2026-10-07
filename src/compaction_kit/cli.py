@@ -57,10 +57,15 @@ def _parse_seeds(spec: str) -> list[int]:
             continue
         if "-" in part:
             a, b = part.split("-", 1)
-            seeds.extend(range(int(a), int(b) + 1))
+            start, end = int(a), int(b)
+            if end < start:
+                raise ValueError(f"seed range is reversed: {part}")
+            seeds.extend(range(start, end + 1))
         else:
             seeds.append(int(part))
-    return seeds or [1]
+    if not seeds:
+        raise ValueError(f"no seeds in specification: {spec!r}")
+    return seeds
 
 
 def _cmd_demo(args) -> int:
@@ -136,7 +141,9 @@ def _parse_budgets(spec: str) -> list[float]:
         if not (0 < value <= 1):
             raise ValueError(f"budget out of range: {part}")
         budgets.append(value)
-    return budgets or [0.10, 0.20, 0.30]
+    if not budgets:
+        raise ValueError(f"no budgets in specification: {spec!r}")
+    return budgets
 
 
 def _cmd_benchmark(args) -> int:
@@ -155,12 +162,23 @@ def _cmd_benchmark(args) -> int:
     return 0
 
 
+def _positive_int(value: str) -> int:
+    number = int(value)
+    if number < 1:
+        raise argparse.ArgumentTypeError("must be >= 1")
+    return number
+
+
 def _cmd_score(args) -> int:
     from pathlib import Path
 
-    compacted_text = Path(args.compacted).read_text()
-    canaries = load_canaries(args.canaries) if args.canaries else seeded_canaries()
-    report = score_compacted_output(compacted_text, canaries, compactor_name=args.name)
+    try:
+        compacted_text = Path(args.compacted).read_text()
+        canaries = load_canaries(args.canaries) if args.canaries else seeded_canaries()
+        report = score_compacted_output(compacted_text, canaries, compactor_name=args.name)
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
     if args.format == "json":
         print(report.to_json())
     else:
@@ -174,29 +192,29 @@ def main(argv: list[str] | None = None) -> int:
 
     p_demo = sub.add_parser("demo", help="seeded session through built-in compactors")
     p_demo.add_argument("--compactor", choices=["all", *COMPACTORS], default="all")
-    p_demo.add_argument("--rounds", type=int, default=5)
+    p_demo.add_argument("--rounds", type=_positive_int, default=5)
     p_demo.add_argument("--format", choices=["md", "json"], default="md")
     p_demo.set_defaults(fn=_cmd_demo)
 
     p_report = sub.add_parser("report", help="one compactor on the seeded session (CI exit codes)")
     p_report.add_argument("--compactor", choices=list(COMPACTORS), default="update-aware-checklist")
-    p_report.add_argument("--rounds", type=int, default=5)
+    p_report.add_argument("--rounds", type=_positive_int, default=5)
     p_report.add_argument("--format", choices=["md", "json"], default="md")
     p_report.set_defaults(fn=_cmd_report)
 
     p_corpus = sub.add_parser("corpus", help="randomized multi-seed corpus run (JSON)")
     p_corpus.add_argument("--compactor", choices=["all", *COMPACTORS], default="all")
     p_corpus.add_argument("--seeds", default="1-12", help="e.g. 1-12 or 1,3,5")
-    p_corpus.add_argument("--rounds", type=int, default=5)
+    p_corpus.add_argument("--rounds", type=_positive_int, default=5)
     p_corpus.set_defaults(fn=_cmd_corpus)
 
     p_benchmark = sub.add_parser(
         "benchmark", help="fixed-budget leaderboard (randomized + semantic suites)"
     )
     p_benchmark.add_argument("--compactor", choices=["all", *COMPACTORS], default="all")
-    p_benchmark.add_argument("--budgets", default="0.10,0.20,0.30", help="fractions or percents, e.g. 0.1,0.2 or 10%,20%")
+    p_benchmark.add_argument("--budgets", default="0.10,0.20,0.30", help="fractions or percents, e.g. 0.1,0.2 or 10%%,20%%")
     p_benchmark.add_argument("--seeds", default="1-4", help="e.g. 1-4 or 1,3,5")
-    p_benchmark.add_argument("--rounds", type=int, default=5)
+    p_benchmark.add_argument("--rounds", type=_positive_int, default=5)
     p_benchmark.add_argument("--format", choices=["md", "json"], default="md")
     p_benchmark.set_defaults(fn=_cmd_benchmark)
 
@@ -210,6 +228,16 @@ def main(argv: list[str] | None = None) -> int:
     p_score.set_defaults(fn=_cmd_score)
 
     args = parser.parse_args(argv)
+    # Validate seed/budget specifications here so malformed values get
+    # a clean usage error (exit 2) instead of a traceback or, worse, a
+    # silently substituted default.
+    try:
+        if getattr(args, "seeds", None) is not None:
+            _parse_seeds(args.seeds)
+        if getattr(args, "budgets", None) is not None:
+            _parse_budgets(args.budgets)
+    except ValueError as exc:
+        parser.error(str(exc))
     return args.fn(args)
 
 

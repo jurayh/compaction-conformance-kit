@@ -49,3 +49,46 @@ def test_cli_corpus_json():
     data = json.loads(buf.getvalue())
     entry = data["by_compactor"]["update-aware-checklist"]
     assert entry["final_median_by_type"]["safety_rule"] == 1.0
+
+
+def test_cli_all_subcommand_help_exits_zero():
+    import io
+    from contextlib import redirect_stdout
+
+    for argv in (
+        ["--help"],
+        ["demo", "--help"],
+        ["report", "--help"],
+        ["corpus", "--help"],
+        ["benchmark", "--help"],
+        ["score", "--help"],
+    ):
+        buf = io.StringIO()
+        try:
+            with redirect_stdout(buf):
+                main(argv)
+        except SystemExit as exc:
+            assert exc.code == 0, argv
+        else:
+            raise AssertionError(f"{argv} did not exit")
+        assert "usage:" in buf.getvalue()
+
+
+def test_cli_rejects_zero_rounds_and_bad_specs():
+    import io
+    from contextlib import redirect_stderr, redirect_stdout
+
+    def expect_usage_error(argv):
+        try:
+            with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                main(argv)
+        except SystemExit as exc:
+            assert exc.code == 2, argv
+        else:
+            raise AssertionError(f"{argv} did not fail")
+
+    expect_usage_error(["report", "--compactor", "checklist-carrying", "--rounds", "0"])
+    expect_usage_error(["demo", "--rounds", "-1"])
+    expect_usage_error(["corpus", "--seeds", "3-1"])
+    expect_usage_error(["corpus", "--seeds", ""])
+    expect_usage_error(["benchmark", "--budgets", ""])

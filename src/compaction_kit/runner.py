@@ -99,6 +99,8 @@ def run_conformance(
         raise ValueError("pass only one of budget_chars and budget_fraction")
     if budget_fraction is not None and not (0 < budget_fraction <= 1):
         raise ValueError("budget_fraction must be in (0, 1]")
+    if rounds < 1:
+        raise ValueError("rounds must be >= 1")
     canaries = canaries or seeded_canaries()
     run = ConformanceRun(compactor_name=compactor.name)
     turns: list[Turn] = session.transcript()
