@@ -372,14 +372,17 @@ protocol, a new probe implements `probe(canary, context_text)`.
 
 ## Status
 
-v0.3 release. Python 3.11+, zero dependencies, zero model spend for
+v0.4 release. Python 3.11+, zero dependencies, zero model spend for
 the default path. MIT license. The 0.3.0 release adds the fixed-budget
 benchmark and external adapters, including a LangChain-style
 progressive summarizer and scoring for compacted output produced by
 other systems. The 0.3.1 patch hardens the CLI against false-clean
 results: invalid rounds, seed, and budget specifications now fail
 with a usage error instead of silently measuring nothing, and
-`score` rejects empty or malformed canary definitions.
+`score` rejects empty or malformed canary definitions. The 0.4.0
+release adds the usability pack: `check` for your own compactor
+class, `init` scaffolding, `diff` regression gating, per-canary
+diagnosis with HTML reports, and a GitHub Action.
 
 Not a compaction fix. A measurement. Fixes are easier to trust once
 something independent can say what they preserve, and what they lose.

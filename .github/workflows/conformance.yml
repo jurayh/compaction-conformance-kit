@@ -1,0 +1,16 @@
+name: Conformance self-test
+
+# Dogfood the GitHub Action in action.yml against this repo itself.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          compactor: semantic-checklist
