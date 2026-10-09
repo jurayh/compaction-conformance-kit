@@ -78,6 +78,34 @@ output, and score the file. Exit 0 means no canary type is flagged.
 For your own transcripts, pass `--canaries canaries.json` with your
 own canary definitions.
 
+## 8. Or check the class directly
+
+```bash
+compaction-kit init
+compaction-kit check my_compactor.py:MyCompactor --budgets 10%,20%
+```
+
+`init` writes a starter compactor, an example `canaries.json`, and
+a CI workflow. `check` loads your class (`module:Class` or
+`file.py:Class`), runs the seeded suite, and verifies any budgets
+you pass. Reports end with a diagnosis section naming each lost
+canary, the round it died, and the tokens missing from the final
+context; `--format html` gives a self-contained report with the
+survival chart.
+
+## 9. Gate changes with diff
+
+Save a baseline report (`report --format json > baseline.json`),
+then after a change:
+
+```bash
+compaction-kit diff baseline.json current.json
+```
+
+Exit 1 means a regression: a type newly flagged, a new or earlier
+cliff, or a survival drop of 25 points or more. The repo's GitHub
+Action (`action.yml`) runs the same gate in CI.
+
 Runnable version: [../examples/measure_your_compactor.py](../examples/measure_your_compactor.py).
 Swap the toy summarizer for your LLM call or your framework's compact
 function; the probes, rounds, and report stay the same.

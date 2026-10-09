@@ -7,6 +7,9 @@ Commands:
   corpus  randomized multi-seed corpus run, aggregated as JSON
   benchmark  fixed-budget leaderboard across randomized and semantic suites
   score   score externally produced compacted output from a file
+  check   measure your own compactor class (module:Class or file.py:Class)
+  init    scaffold a starter compactor, canary file, and CI workflow
+  diff    compare two report JSON files; exit 1 on regressions
 
 No API key, no model calls.
 """
@@ -31,8 +34,11 @@ from .adapters import ProgressiveSummaryCompactor
 from .benchmark import budget_benchmark_to_markdown, run_budget_benchmark
 from .canaries import seeded_canaries
 from .corpus import build_random_session
+from .diffing import diff_reports
+from .loading import load_compactor
 from .report import build_report
 from .runner import run_conformance
+from .scaffold import init_project
 from .semantic import SemanticChecklistCompactor
 from .session import build_seeded_session
 from .transcripts import load_canaries, score_compacted_output
@@ -83,15 +89,80 @@ def _cmd_demo(args) -> int:
     return 0
 
 
+def _print_report(report, fmt: str) -> None:
+    if fmt == "json":
+        print(report.to_json())
+    elif fmt == "html":
+        print(report.to_html())
+    else:
+        print(report.to_markdown())
+
+
 def _cmd_report(args) -> int:
     session = build_seeded_session()
     run = run_conformance(session, COMPACTORS[args.compactor](), rounds=args.rounds)
-    report = build_report(run)
-    if args.format == "json":
-        print(report.to_json())
-    else:
-        print(report.to_markdown())
+    report = build_report(run, canaries=seeded_canaries(), session=session)
+    _print_report(report, args.format)
     return 1 if (report.flagged_types or report.late_cliff_types) else 0
+
+
+def _cmd_check(args) -> int:
+    try:
+        compactor = load_compactor(args.spec)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    session = build_seeded_session()
+    run = run_conformance(session, compactor, rounds=args.rounds)
+    report = build_report(run, canaries=seeded_canaries(), session=session)
+    _print_report(report, args.format)
+    if args.budgets:
+        try:
+            budgets = _parse_budgets(args.budgets)
+        except ValueError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+        lines = ["", "## Budget compliance", ""]
+        for fraction in budgets:
+            budgeted = run_conformance(
+                session, compactor, rounds=args.rounds, budget_fraction=fraction
+            )
+            final = budgeted.rounds[-1]
+            total = sum(final.survived.values())
+            compliant = all(r.within_budget for r in budgeted.rounds)
+            lines.append(
+                f"- {fraction:.0%} budget: compliant="
+                f"{str(compliant).lower()}, "
+                f"final survival {total}/{len(final.survived)}"
+            )
+        print("\n".join(lines))
+    return 1 if (report.flagged_types or report.late_cliff_types) else 0
+
+
+def _cmd_init(args) -> int:
+    results = init_project(args.directory, force=args.force)
+    for path, created in results:
+        print(f"{'created' if created else 'exists, skipped'}: {path}")
+    print()
+    print("Next steps:")
+    print("  1. Edit my_compactor.py with your compaction logic.")
+    print("  2. Run: compaction-kit check my_compactor.py:MyCompactor")
+    print("  3. Edit canaries.json with the rules and facts from your own sessions.")
+    return 0
+
+
+def _cmd_diff(args) -> int:
+    from pathlib import Path
+
+    try:
+        baseline = json.loads(Path(args.baseline).read_text())
+        current = json.loads(Path(args.current).read_text())
+        diff = diff_reports(baseline, current)
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    print(diff.to_markdown())
+    return 1 if diff.has_regressions else 0
 
 
 def _cmd_corpus(args) -> int:
@@ -179,10 +250,7 @@ def _cmd_score(args) -> int:
     except (OSError, ValueError, KeyError, TypeError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
-    if args.format == "json":
-        print(report.to_json())
-    else:
-        print(report.to_markdown())
+    _print_report(report, args.format)
     return 1 if report.flagged_types else 0
 
 
@@ -199,7 +267,7 @@ def main(argv: list[str] | None = None) -> int:
     p_report = sub.add_parser("report", help="one compactor on the seeded session (CI exit codes)")
     p_report.add_argument("--compactor", choices=list(COMPACTORS), default="update-aware-checklist")
     p_report.add_argument("--rounds", type=_positive_int, default=5)
-    p_report.add_argument("--format", choices=["md", "json"], default="md")
+    p_report.add_argument("--format", choices=["md", "json", "html"], default="md")
     p_report.set_defaults(fn=_cmd_report)
 
     p_corpus = sub.add_parser("corpus", help="randomized multi-seed corpus run (JSON)")
@@ -224,8 +292,27 @@ def main(argv: list[str] | None = None) -> int:
     p_score.add_argument("--compacted", required=True, help="file containing the compacted context text")
     p_score.add_argument("--canaries", default=None, help="JSON canary definitions (default: the seeded canaries)")
     p_score.add_argument("--name", default="external", help="label for the external compactor")
-    p_score.add_argument("--format", choices=["md", "json"], default="md")
+    p_score.add_argument("--format", choices=["md", "json", "html"], default="md")
     p_score.set_defaults(fn=_cmd_score)
+
+    p_check = sub.add_parser(
+        "check", help="measure your own compactor class (CI exit codes)"
+    )
+    p_check.add_argument("spec", help="'module:Class' or 'path/to/file.py:Class'")
+    p_check.add_argument("--rounds", type=_positive_int, default=5)
+    p_check.add_argument("--budgets", default=None, help="optional budget fractions/percents to also verify, e.g. 10%,20%")
+    p_check.add_argument("--format", choices=["md", "json", "html"], default="md")
+    p_check.set_defaults(fn=_cmd_check)
+
+    p_init = sub.add_parser("init", help="scaffold a starter compactor, canaries, and CI workflow")
+    p_init.add_argument("directory", nargs="?", default=".")
+    p_init.add_argument("--force", action="store_true", help="overwrite existing files")
+    p_init.set_defaults(fn=_cmd_init)
+
+    p_diff = sub.add_parser("diff", help="compare two report JSON files (CI exit codes)")
+    p_diff.add_argument("baseline")
+    p_diff.add_argument("current")
+    p_diff.set_defaults(fn=_cmd_diff)
 
     args = parser.parse_args(argv)
     # Validate seed/budget specifications here so malformed values get

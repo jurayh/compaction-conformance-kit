@@ -11,6 +11,8 @@ Every demo runs with no API key and no model calls.
 | Randomized corpus | `compaction-kit corpus --seeds 1-12` | Survival medians across 12 generated sessions, JSON output |
 | Budget benchmark | `compaction-kit benchmark --budgets 10%,20%,30%` | Fixed-budget leaderboard across the randomized and semantic suites |
 | Score external output | `compaction-kit score --compacted output.txt` | Per-type report for a saved /compact output from any product |
+| Check your class | `compaction-kit check my_compactor.py:MyCompactor` | Seeded-suite report with per-canary diagnosis for your own compactor |
+| Regression gate | `compaction-kit diff baseline.json current.json` | Exit 1 when a change regresses any canary type |
 | Measure your own compactor | `python3 examples/measure_your_compactor.py` | A custom compactor in about 20 lines, scored by the kit |
 | Recorded CLI output | [demo_cli.md](demo_cli.md) | Verbatim output of the three commands above |
 

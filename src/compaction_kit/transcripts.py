@@ -133,7 +133,7 @@ def score_compacted_output(
         input_chars=0,
         output_chars=len(compacted_text),
     ))
-    report = build_report(run)
+    report = build_report(run, canaries=canaries)
     # A custom canary set may cover only some types; absent types are
     # not failures and must not be flagged.
     present = {canary.type.value for canary in canaries}

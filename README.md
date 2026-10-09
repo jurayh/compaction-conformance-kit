@@ -46,13 +46,16 @@ like this (abbreviated):
 | safety_rule | 25% | 25%, 0%, 0%, 0%, 0% | FLAG | round 1 |
 | user_preference | 100% | 100% across all rounds | SILENT | none |
 
-Four more commands:
+More commands:
 
 ```bash
 compaction-kit report --compactor update-aware-checklist   # CI gate: exit 1 on FLAG or late cliff
 compaction-kit corpus --seeds 1-12                         # randomized multi-session run, JSON
 compaction-kit benchmark --budgets 10%,20%,30%             # fixed-budget leaderboard, markdown
 compaction-kit score --compacted output.txt                # score your product's saved /compact output
+compaction-kit init                                        # scaffold your compactor, canaries, CI workflow
+compaction-kit check my_compactor.py:MyCompactor           # measure your own compactor class
+compaction-kit diff baseline.json current.json             # CI gate: exit 1 on regressions
 ```
 
 Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md).
@@ -299,6 +302,25 @@ Default ground truth is the seeded session's canaries;
 `--canaries canaries.json` scores against your own definitions for
 your own transcripts. Details: [sim/ADAPTERS.md](sim/ADAPTERS.md).
 
+## Measure your own compactor
+
+```bash
+compaction-kit init                       # starter compactor + canaries + CI workflow
+compaction-kit check my_compactor.py:MyCompactor
+```
+
+`check` loads any compactor class by import path (`module:Class`
+or `file.py:Class`), runs the seeded suite, and with `--budgets
+10%,20%` also verifies budget compliance. Reports include a
+**diagnosis** section: for every lost canary, the round it died,
+its position in the transcript, the exact tokens missing from the
+final context, and any stale superseded values still carried.
+`--format html` produces a self-contained report with the survival
+chart. `compaction-kit diff baseline.json current.json` compares
+two report JSON files and exits 1 on regressions, and the repo
+ships a GitHub Action (`action.yml`) that runs the gate in CI and
+posts the report as a job summary.
+
 ## The spike gate
 
 This kit exists only because it passed a kill criterion set before the
@@ -322,6 +344,11 @@ breaks the separation breaks the build.
 | `src/compaction_kit/benchmark.py` | Fixed-budget benchmark: randomized + semantic suites, compliance, and leaderboard ranking |
 | `src/compaction_kit/adapters.py` | External-pattern adapters: LangChain-style progressive summary, and replay of precomputed output |
 | `src/compaction_kit/transcripts.py` | External transcript loading, custom canary loading, and scoring of externally produced output |
+| `src/compaction_kit/loading.py` | Load a user compactor from a `module:Class` or `file.py:Class` specification |
+| `src/compaction_kit/diagnosis.py` | Per-canary diagnosis: lost round, position, missing tokens, stale values |
+| `src/compaction_kit/diffing.py` | Report comparison and regression detection for `compaction-kit diff` |
+| `src/compaction_kit/scaffold.py` | Project scaffolding for `compaction-kit init` |
+| `action.yml` | GitHub Action wrapper: run the conformance gate in CI with a job-summary report |
 | `src/compaction_kit/compactors.py` | The `Compactor` protocol and reference implementations, including update-aware checklist, pinned rules, and summary-plus-tail mitigations |
 | `src/compaction_kit/probes.py` | Direct-recall, behavior, and exact-use probes |
 | `src/compaction_kit/simulated_agent.py` | $0 retrieval agent for probing |
@@ -338,6 +365,7 @@ breaks the separation breaks the build.
 | `tests/test_semantic.py` | Semantic resolver classification, stale-drop, false-merge, and held-out success tests |
 | `tests/test_budget.py` | Budget protocol compatibility, compliance, priority, and benchmark ranking tests |
 | `tests/test_adapters.py` | External adapter, transcript loading, and score-command tests |
+| `tests/test_usability.py` | Compactor loading, init scaffolding, diff gating, diagnosis, and HTML report tests |
 
 Extending it is one class at a time: a new compactor implements the
 protocol, a new probe implements `probe(canary, context_text)`.

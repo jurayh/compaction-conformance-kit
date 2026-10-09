@@ -1,0 +1,54 @@
+name: "Compaction Conformance"
+description: "Measure what your agent's context compaction preserves, per canary type, and fail CI on flags or late cliffs."
+author: "Yuriy H"
+
+inputs:
+  compactor:
+    description: "Built-in compactor name for the report command (e.g. semantic-checklist). Ignored when 'spec' is set."
+    required: false
+    default: "semantic-checklist"
+  spec:
+    description: "Your own compactor: 'module:Class' or 'file.py:Class'. When set, the check command is used instead of report."
+    required: false
+    default: ""
+  rounds:
+    description: "Compaction rounds to run."
+    required: false
+    default: "5"
+  version:
+    description: "compaction-conformance-kit version to install from PyPI, or 'latest'."
+    required: false
+    default: "latest"
+  python-version:
+    description: "Python version for the job."
+    required: false
+    default: "3.12"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install compaction-conformance-kit
+      shell: bash
+      run: |
+        if [ "${{ inputs.version }}" = "latest" ]; then
+          pip install compaction-conformance-kit
+        else
+          pip install "compaction-conformance-kit==${{ inputs.version }}"
+        fi
+    - name: Run conformance gate
+      shell: bash
+      run: |
+        set -o pipefail
+        if [ -n "${{ inputs.spec }}" ]; then
+          compaction-kit check "${{ inputs.spec }}" --rounds "${{ inputs.rounds }}" | tee conformance-report.md
+        else
+          compaction-kit report --compactor "${{ inputs.compactor }}" --rounds "${{ inputs.rounds }}" | tee conformance-report.md
+        fi
+        cat conformance-report.md >> "$GITHUB_STEP_SUMMARY"
+
+branding:
+  icon: "layers"
+  color: "orange"
