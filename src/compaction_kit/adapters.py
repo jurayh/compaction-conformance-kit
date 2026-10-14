@@ -60,6 +60,10 @@ class ProgressiveSummaryCompactor:
         max_chars: int = 2400,
         name: str = "progressive-summary",
     ) -> None:
+        if not (0 <= buffer_fraction <= 1):
+            raise ValueError("buffer_fraction must be between 0 and 1")
+        if max_chars < 1:
+            raise ValueError("max_chars must be >= 1")
         self._summarize = summarize_fn or _gist
         self.buffer_fraction = buffer_fraction
         self.max_chars = max_chars

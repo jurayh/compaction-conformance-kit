@@ -23,7 +23,13 @@ from .diagnosis import CanaryDiagnosis, diagnose_run
 from .diffing import ReportDiff, diff_reports
 from .loading import load_compactor
 from .probes import BehaviorProbe, DirectRecallProbe, ExactUseProbe, ProbeResult
-from .report import ConformanceReport, build_report
+from .report import (
+    BudgetCheck,
+    BudgetRoundResult,
+    ConformanceReport,
+    budget_check_from_run,
+    build_report,
+)
 from .runner import RoundResult, run_conformance
 from .scaffold import init_project
 from .semantic import SemanticChecklistCompactor
@@ -34,6 +40,8 @@ from .transcripts import load_canaries, load_transcript, score_compacted_output
 
 __all__ = [
     "BehaviorProbe",
+    "BudgetCheck",
+    "BudgetRoundResult",
     "Canary",
     "CanaryDiagnosis",
     "CanaryType",
@@ -65,6 +73,7 @@ __all__ = [
     "build_report",
     "build_seeded_session",
     "budget_benchmark_to_markdown",
+    "budget_check_from_run",
     "diagnose_run",
     "diff_reports",
     "init_project",

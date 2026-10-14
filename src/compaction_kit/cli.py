@@ -7,7 +7,8 @@ Commands:
   corpus  randomized multi-seed corpus run, aggregated as JSON
   benchmark  fixed-budget leaderboard across randomized and semantic suites
   score   score externally produced compacted output from a file
-  check   measure your own compactor class (module:Class or file.py:Class)
+  check   measure your own compactor class (module:Class or file.py:Class);
+          exit 1 on flags, late cliffs, or budget non-compliance
   init    scaffold a starter compactor, canary file, and CI workflow
   diff    compare two report JSON files; exit 1 on regressions
 
@@ -36,7 +37,7 @@ from .canaries import seeded_canaries
 from .corpus import build_random_session
 from .diffing import diff_reports
 from .loading import load_compactor
-from .report import build_report
+from .report import build_report, budget_check_from_run
 from .runner import run_conformance
 from .scaffold import init_project
 from .semantic import SemanticChecklistCompactor
@@ -109,34 +110,21 @@ def _cmd_report(args) -> int:
 def _cmd_check(args) -> int:
     try:
         compactor = load_compactor(args.spec)
+        budgets = _parse_budgets(args.budgets) if args.budgets else []
     except ValueError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
     session = build_seeded_session()
     run = run_conformance(session, compactor, rounds=args.rounds)
     report = build_report(run, canaries=seeded_canaries(), session=session)
+    for fraction in budgets:
+        budgeted = run_conformance(
+            session, compactor, rounds=args.rounds, budget_fraction=fraction
+        )
+        report.budget_checks.append(budget_check_from_run(budgeted, fraction))
     _print_report(report, args.format)
-    if args.budgets:
-        try:
-            budgets = _parse_budgets(args.budgets)
-        except ValueError as exc:
-            print(f"error: {exc}", file=sys.stderr)
-            return 2
-        lines = ["", "## Budget compliance", ""]
-        for fraction in budgets:
-            budgeted = run_conformance(
-                session, compactor, rounds=args.rounds, budget_fraction=fraction
-            )
-            final = budgeted.rounds[-1]
-            total = sum(final.survived.values())
-            compliant = all(r.within_budget for r in budgeted.rounds)
-            lines.append(
-                f"- {fraction:.0%} budget: compliant="
-                f"{str(compliant).lower()}, "
-                f"final survival {total}/{len(final.survived)}"
-            )
-        print("\n".join(lines))
-    return 1 if (report.flagged_types or report.late_cliff_types) else 0
+    failed = report.flagged_types or report.late_cliff_types or not report.budget_compliant
+    return 1 if failed else 0
 
 
 def _cmd_init(args) -> int:

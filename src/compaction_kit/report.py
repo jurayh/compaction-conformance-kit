@@ -29,10 +29,55 @@ class TypeFinding:
 
 
 @dataclass
+class BudgetRoundResult:
+    round_num: int
+    output_chars: int
+    budget_chars: int | None
+    within_budget: bool
+
+
+@dataclass
+class BudgetCheck:
+    budget_fraction: float
+    budget_chars: int | None
+    compliant: bool
+    final_survived: int
+    final_total: int
+    rounds: list[BudgetRoundResult] = field(default_factory=list)
+
+
+def budget_check_from_run(run: ConformanceRun, budget_fraction: float) -> BudgetCheck:
+    """Summarize one budget-constrained conformance run for a report."""
+    final = run.rounds[-1] if run.rounds else None
+    return BudgetCheck(
+        budget_fraction=budget_fraction,
+        budget_chars=final.budget_chars if final is not None else None,
+        compliant=all(result.within_budget for result in run.rounds),
+        final_survived=sum(final.survived.values()) if final is not None else 0,
+        final_total=len(final.survived) if final is not None else 0,
+        rounds=[
+            BudgetRoundResult(
+                round_num=result.round_num,
+                output_chars=result.output_chars,
+                budget_chars=result.budget_chars,
+                within_budget=result.within_budget,
+            )
+            for result in run.rounds
+        ],
+    )
+
+
+@dataclass
 class ConformanceReport:
     compactor_name: str
     findings: list[TypeFinding] = field(default_factory=list)
     diagnoses: list[CanaryDiagnosis] = field(default_factory=list)
+    budget_checks: list[BudgetCheck] = field(default_factory=list)
+
+    @property
+    def budget_compliant(self) -> bool:
+        """True when every attached budget check stayed within budget."""
+        return all(check.compliant for check in self.budget_checks)
 
     @property
     def flagged_types(self) -> list[str]:
@@ -72,6 +117,26 @@ class ConformanceReport:
                 for f in self.findings
             ],
         }
+        if self.budget_checks:
+            payload["budget_checks"] = [
+                {
+                    "budget_fraction": check.budget_fraction,
+                    "budget_chars": check.budget_chars,
+                    "compliant": check.compliant,
+                    "final_survived": check.final_survived,
+                    "final_total": check.final_total,
+                    "rounds": [
+                        {
+                            "round": result.round_num,
+                            "output_chars": result.output_chars,
+                            "budget_chars": result.budget_chars,
+                            "within_budget": result.within_budget,
+                        }
+                        for result in check.rounds
+                    ],
+                }
+                for check in self.budget_checks
+            ]
         if self.diagnoses:
             payload["diagnoses"] = [
                 {
@@ -121,6 +186,14 @@ class ConformanceReport:
                     if f.has_late_cliff
                 )
             )
+        if self.budget_checks:
+            lines += ["", "## Budget compliance", ""]
+            for check in self.budget_checks:
+                lines.append(
+                    f"- {check.budget_fraction:.0%} budget: compliant="
+                    f"{str(check.compliant).lower()}, "
+                    f"final survival {check.final_survived}/{check.final_total}"
+                )
         if self.diagnoses:
             lines += diagnosis_to_markdown(self.diagnoses)
         return "\n".join(lines) + "\n"
@@ -188,6 +261,24 @@ class ConformanceReport:
             diagnosis_html = "<h2>Diagnosis</h2><p>All canaries held; no stale values carried.</p>"
         else:
             diagnosis_html = ""
+        if self.budget_checks:
+            budget_rows = "".join(
+                "<tr>"
+                f"<td>{check.budget_fraction:.0%}</td>"
+                f"<td>{check.budget_chars if check.budget_chars is not None else '—'}</td>"
+                f"<td>{str(check.compliant).lower()}</td>"
+                f"<td>{check.final_survived}/{check.final_total}</td>"
+                f"<td>{max((result.output_chars for result in check.rounds), default=0)}</td>"
+                "</tr>"
+                for check in self.budget_checks
+            )
+            budget_html = (
+                "<h2>Budget compliance</h2>"
+                "<table><tr><th>Budget</th><th>Limit (chars)</th><th>Compliant</th>"
+                f"<th>Final survival</th><th>Max output (chars)</th></tr>{budget_rows}</table>"
+            )
+        else:
+            budget_html = ""
         name = html.escape(self.compactor_name)
         return (
             "<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\">"
@@ -199,6 +290,7 @@ class ConformanceReport:
             + f"<ul>{legend}</ul>"
             + "<table><tr><th>Type</th><th>Round 1</th><th>Curve</th><th>Verdict</th>"
             + f"<th>Cliff</th><th>Final</th></tr>{rows}</table>"
+            + budget_html
             + diagnosis_html
             + "</body></html>\n"
         )

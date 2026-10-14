@@ -88,7 +88,10 @@ compaction-kit check my_compactor.py:MyCompactor --budgets 10%,20%
 `init` writes a starter compactor, an example `canaries.json`, and
 a CI workflow. `check` loads your class (`module:Class` or
 `file.py:Class`), runs the seeded suite, and verifies any budgets
-you pass. Reports end with a diagnosis section naming each lost
+you pass. A budget overrun in any round exits 1, and budget results
+are carried inside the selected report format: Markdown gets a
+budget section, JSON gets a `budget_checks` array, and HTML gets a
+budget table. Reports end with a diagnosis section naming each lost
 canary, the round it died, and the tokens missing from the final
 context; `--format html` gives a self-contained report with the
 survival chart.

@@ -311,7 +311,10 @@ compaction-kit check my_compactor.py:MyCompactor
 
 `check` loads any compactor class by import path (`module:Class`
 or `file.py:Class`), runs the seeded suite, and with `--budgets
-10%,20%` also verifies budget compliance. Reports include a
+10%,20%` also verifies budget compliance. A budget overrun in any
+round fails the command with exit 1, and the budget results are
+included in whichever report format you select rather than appended
+as extra text. Reports include a
 **diagnosis** section: for every lost canary, the round it died,
 its position in the transcript, the exact tokens missing from the
 final context, and any stale superseded values still carried.
@@ -382,7 +385,11 @@ with a usage error instead of silently measuring nothing, and
 `score` rejects empty or malformed canary definitions. The 0.4.0
 release adds the usability pack: `check` for your own compactor
 class, `init` scaffolding, `diff` regression gating, per-canary
-diagnosis with HTML reports, and a GitHub Action.
+diagnosis with HTML reports, and a GitHub Action. The 0.4.1 patch
+makes `check --budgets` a real gate: a budget overrun in any round
+exits 1, budget results are carried inside the selected report
+format (a `budget_checks` array in JSON), and the progressive
+summary adapter validates its tuning parameters.
 
 Not a compaction fix. A measurement. Fixes are easier to trust once
 something independent can say what they preserve, and what they lose.

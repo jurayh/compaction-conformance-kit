@@ -34,6 +34,25 @@ def test_progressive_summary_complies_at_standard_budgets():
         assert sizes[-1] <= sizes[0]
 
 
+def test_progressive_summary_rejects_invalid_tuning():
+    for kwargs in (
+        {"buffer_fraction": -0.5},
+        {"buffer_fraction": 1.5},
+        {"max_chars": 0},
+        {"max_chars": -10},
+    ):
+        try:
+            ProgressiveSummaryCompactor(**kwargs)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"{kwargs} must be rejected")
+    # Boundary values remain valid.
+    ProgressiveSummaryCompactor(buffer_fraction=0)
+    ProgressiveSummaryCompactor(buffer_fraction=1)
+    ProgressiveSummaryCompactor(max_chars=1)
+
+
 def test_progressive_summary_accepts_a_custom_summarize_fn():
     seen = []
 

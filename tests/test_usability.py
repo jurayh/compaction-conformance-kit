@@ -32,6 +32,30 @@ class TailCompactor:
         return CompactedContext(text=text, compactor_name=self.name, round_num=round_num)
 '''
 
+BUDGET_AWARE_MODULE = '''
+from compaction_kit.compactors import ChecklistCompactor
+
+
+class BudgetAwareCompactor:
+    name = "budget-aware"
+
+    def compact(self, turns, round_num=1, budget_chars=None):
+        return ChecklistCompactor().compact(
+            turns, round_num=round_num, budget_chars=budget_chars
+        )
+'''
+
+IGNORE_BUDGET_MODULE = '''
+from compaction_kit.compactors import ChecklistCompactor
+
+
+class IgnoreBudgetCompactor:
+    name = "ignore-budget"
+
+    def compact(self, turns, round_num=1):
+        return ChecklistCompactor().compact(turns, round_num=round_num)
+'''
+
 
 def _run(session, compactor):
     return run_conformance(session, compactor, rounds=5)
@@ -69,6 +93,57 @@ def test_check_command_exit_codes(tmp_path=None):
         assert rc_bad == 1  # tail-only compaction loses early canaries
         assert rc_good == 0
         assert rc_err == 2
+
+
+def test_check_budget_gate_and_formats(tmp_path=None):
+    import tempfile
+
+    def capture(argv):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = cli_main(argv)
+        return rc, buf.getvalue()
+
+    with tempfile.TemporaryDirectory() as tmp:
+        aware = Path(tmp) / "aware.py"
+        aware.write_text(BUDGET_AWARE_MODULE)
+        ignoring = Path(tmp) / "ignoring.py"
+        ignoring.write_text(IGNORE_BUDGET_MODULE)
+
+        rc, out = capture([
+            "check", f"{aware}:BudgetAwareCompactor",
+            "--budgets", "20%", "--format", "json",
+        ])
+        assert rc == 0
+        payload = json.loads(out)  # budgets must not corrupt JSON output
+        check = payload["budget_checks"][0]
+        assert check["compliant"] is True
+        assert check["final_total"] == 20
+        assert len(check["rounds"]) == 5
+        assert all(r["within_budget"] for r in check["rounds"])
+
+        rc, out = capture([
+            "check", f"{ignoring}:IgnoreBudgetCompactor",
+            "--budgets", "20%", "--format", "json",
+        ])
+        assert rc == 1  # non-compliance is a gate failure, not just a note
+        payload = json.loads(out)
+        assert payload["budget_checks"][0]["compliant"] is False
+
+        rc, out = capture([
+            "check", f"{ignoring}:IgnoreBudgetCompactor",
+            "--budgets", "20%", "--format", "md",
+        ])
+        assert rc == 1
+        assert "## Budget compliance" in out and "compliant=false" in out
+
+        rc, out = capture([
+            "check", f"{ignoring}:IgnoreBudgetCompactor",
+            "--budgets", "20%", "--format", "html",
+        ])
+        assert rc == 1
+        assert "<h2>Budget compliance</h2>" in out
+        assert "## Budget compliance" not in out
 
 
 def test_init_scaffold_is_loadable(tmp_path=None):
