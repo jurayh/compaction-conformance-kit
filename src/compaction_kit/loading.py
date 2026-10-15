@@ -15,7 +15,8 @@ import sys
 from pathlib import Path
 
 
-def load_compactor(spec: str):
+def _resolve_object(spec: str):
+    """Resolve a spec to the named object, without instantiating it."""
     if ":" not in spec:
         raise ValueError(
             f"invalid compactor spec {spec!r}: expected 'module:Class' "
@@ -43,6 +44,10 @@ def load_compactor(spec: str):
         if not hasattr(obj, part):
             raise ValueError(f"{module_part!r} has no attribute {attr!r}")
         obj = getattr(obj, part)
+    return obj, attr
+
+
+def _instantiate(obj, spec: str, attr: str):
     if isinstance(obj, type):
         compactor = obj()
     elif hasattr(obj, "compact"):
@@ -56,3 +61,28 @@ def load_compactor(spec: str):
     if not hasattr(compactor, "name"):
         compactor.name = attr
     return compactor
+
+
+def load_compactor(spec: str):
+    """Load one compactor instance from a spec."""
+    obj, attr = _resolve_object(spec)
+    return _instantiate(obj, spec, attr)
+
+
+def load_compactor_factory(spec: str):
+    """Load a zero-argument factory producing fresh compactor instances.
+
+    Classes and factory callables are returned as factories, so each
+    call produces a new instance. An already-built instance cannot be
+    cloned, so the factory returns that same instance every call.
+    The spec is validated once, by instantiating it here.
+    """
+    obj, attr = _resolve_object(spec)
+    _instantiate(obj, spec, attr)  # validation: must yield a compactor
+    if isinstance(obj, type) or (callable(obj) and not hasattr(obj, "compact")):
+        def factory():
+            return _instantiate(obj, spec, attr)
+
+        return factory
+    instance = _instantiate(obj, spec, attr)
+    return lambda: instance

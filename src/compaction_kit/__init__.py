@@ -21,7 +21,7 @@ from .compactors import (
 from .corpus import build_random_session, position_bucket
 from .diagnosis import CanaryDiagnosis, diagnose_run
 from .diffing import ReportDiff, diff_reports
-from .loading import load_compactor
+from .loading import load_compactor, load_compactor_factory
 from .probes import BehaviorProbe, DirectRecallProbe, ExactUseProbe, ProbeResult
 from .report import (
     BudgetCheck,
@@ -36,7 +36,12 @@ from .semantic import SemanticChecklistCompactor
 from .semantic_corpus import build_semantic_heldout_session, build_semantic_session
 from .session import SeededSession, Turn, build_seeded_session
 from .simulated_agent import SimulatedAgent, SimulatedAnswer
-from .transcripts import load_canaries, load_transcript, score_compacted_output
+from .transcripts import (
+    build_transcript_session,
+    load_canaries,
+    load_transcript,
+    score_compacted_output,
+)
 
 __all__ = [
     "BehaviorProbe",
@@ -72,6 +77,7 @@ __all__ = [
     "build_semantic_session",
     "build_report",
     "build_seeded_session",
+    "build_transcript_session",
     "budget_benchmark_to_markdown",
     "budget_check_from_run",
     "diagnose_run",
@@ -79,6 +85,7 @@ __all__ = [
     "init_project",
     "load_canaries",
     "load_compactor",
+    "load_compactor_factory",
     "load_transcript",
     "position_bucket",
     "run_budget_benchmark",

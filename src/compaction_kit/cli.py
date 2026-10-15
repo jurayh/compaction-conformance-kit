@@ -5,7 +5,8 @@ Commands:
   report  one compactor on the seeded session; exit 1 if any type is
           flagged at round 1 or hits a late cliff, else 0
   corpus  randomized multi-seed corpus run, aggregated as JSON
-  benchmark  fixed-budget leaderboard across randomized and semantic suites
+  benchmark  fixed-budget leaderboard across randomized and semantic suites;
+          --spec benchmarks your own compactor class instead of the built-ins
   score   score externally produced compacted output from a file
   check   measure your own compactor class (module:Class or file.py:Class);
           exit 1 on flags, late cliffs, or budget non-compliance
@@ -36,13 +37,18 @@ from .benchmark import budget_benchmark_to_markdown, run_budget_benchmark
 from .canaries import seeded_canaries
 from .corpus import build_random_session
 from .diffing import diff_reports
-from .loading import load_compactor
+from .loading import load_compactor, load_compactor_factory
 from .report import build_report, budget_check_from_run
 from .runner import run_conformance
 from .scaffold import init_project
 from .semantic import SemanticChecklistCompactor
 from .session import build_seeded_session
-from .transcripts import load_canaries, score_compacted_output
+from .transcripts import (
+    build_transcript_session,
+    load_canaries,
+    load_transcript,
+    score_compacted_output,
+)
 
 COMPACTORS = {
     "lossy-truncation": LossyTruncationCompactor,
@@ -111,15 +117,32 @@ def _cmd_check(args) -> int:
     try:
         compactor = load_compactor(args.spec)
         budgets = _parse_budgets(args.budgets) if args.budgets else []
-    except ValueError as exc:
+        if bool(args.session) != bool(args.canaries):
+            raise ValueError("--session and --canaries must be given together")
+        if args.session:
+            turns = load_transcript(args.session)
+            canaries = load_canaries(args.canaries)
+            if not turns:
+                raise ValueError("session transcript has no turns")
+            if not canaries:
+                raise ValueError("canary file has no canaries")
+            session = build_transcript_session(turns, canaries)
+        else:
+            session = build_seeded_session()
+            canaries = seeded_canaries()
+    except (ValueError, OSError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
-    session = build_seeded_session()
-    run = run_conformance(session, compactor, rounds=args.rounds)
-    report = build_report(run, canaries=seeded_canaries(), session=session)
+    run = run_conformance(session, compactor, rounds=args.rounds, canaries=canaries)
+    report = build_report(run, canaries=canaries, session=session)
+    # A custom canary set may cover only some types; absent types are
+    # not failures and must not be flagged (same rule as `score`).
+    present = {canary.type.value for canary in canaries}
+    report.findings = [f for f in report.findings if f.canary_type in present]
     for fraction in budgets:
         budgeted = run_conformance(
-            session, compactor, rounds=args.rounds, budget_fraction=fraction
+            session, compactor, rounds=args.rounds,
+            canaries=canaries, budget_fraction=fraction,
         )
         report.budget_checks.append(budget_check_from_run(budgeted, fraction))
     _print_report(report, args.format)
@@ -135,7 +158,10 @@ def _cmd_init(args) -> int:
     print("Next steps:")
     print("  1. Edit my_compactor.py with your compaction logic.")
     print("  2. Run: compaction-kit check my_compactor.py:MyCompactor")
-    print("  3. Edit canaries.json with the rules and facts from your own sessions.")
+    print("  3. Replace session.jsonl and canaries.json with your own session")
+    print("     and the rules and facts it must preserve, then run:")
+    print("     compaction-kit check my_compactor.py:MyCompactor \\")
+    print("       --session session.jsonl --canaries canaries.json")
     return 0
 
 
@@ -206,8 +232,17 @@ def _parse_budgets(spec: str) -> list[float]:
 
 
 def _cmd_benchmark(args) -> int:
-    names = list(COMPACTORS) if args.compactor == "all" else [args.compactor]
-    factories = {name: COMPACTORS[name] for name in names}
+    if args.spec:
+        try:
+            factory = load_compactor_factory(args.spec)
+            probe = factory()
+        except ValueError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+        factories = {probe.name: factory}
+    else:
+        names = list(COMPACTORS) if args.compactor == "all" else [args.compactor]
+        factories = {name: COMPACTORS[name] for name in names}
     payload = run_budget_benchmark(
         factories,
         budgets=_parse_budgets(args.budgets),
@@ -268,6 +303,7 @@ def main(argv: list[str] | None = None) -> int:
         "benchmark", help="fixed-budget leaderboard (randomized + semantic suites)"
     )
     p_benchmark.add_argument("--compactor", choices=["all", *COMPACTORS], default="all")
+    p_benchmark.add_argument("--spec", default=None, help="benchmark your own compactor instead: 'module:Class' or 'path/to/file.py:Class'")
     p_benchmark.add_argument("--budgets", default="0.10,0.20,0.30", help="fractions or percents, e.g. 0.1,0.2 or 10%%,20%%")
     p_benchmark.add_argument("--seeds", default="1-4", help="e.g. 1-4 or 1,3,5")
     p_benchmark.add_argument("--rounds", type=_positive_int, default=5)
@@ -287,6 +323,8 @@ def main(argv: list[str] | None = None) -> int:
         "check", help="measure your own compactor class (CI exit codes)"
     )
     p_check.add_argument("spec", help="'module:Class' or 'path/to/file.py:Class'")
+    p_check.add_argument("--session", default=None, help="your own transcript (JSONL, JSON, or plain text); requires --canaries")
+    p_check.add_argument("--canaries", default=None, help="JSON canary definitions for your transcript; requires --session")
     p_check.add_argument("--rounds", type=_positive_int, default=5)
     p_check.add_argument("--budgets", default=None, help="optional budget fractions/percents to also verify, e.g. 10%,20%")
     p_check.add_argument("--format", choices=["md", "json", "html"], default="md")

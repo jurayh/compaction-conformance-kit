@@ -22,7 +22,7 @@ from .canaries import Canary, CanaryType
 from .compacted import CompactedContext
 from .report import ConformanceReport, build_report
 from .runner import ConformanceRun, RoundResult, _probe_all, _rates
-from .session import Turn
+from .session import SeededSession, Turn
 
 _ROLE_LINE = re.compile(r"^\[?(system|user|assistant|tool)\]?\s*[:\]]\s*(.*)$", re.I)
 
@@ -110,6 +110,52 @@ def load_canaries(path: str | Path) -> list[Canary]:
             exact_use_required_tokens=_token_list(obj, "exact_use_required_tokens", obj["id"]),
         ))
     return canaries
+
+
+def build_transcript_session(
+    turns: list[Turn], canaries: list[Canary]
+) -> SeededSession:
+    """Build a session from a loaded transcript and its canaries.
+
+    Each canary is located in the transcript so diagnosis can report
+    its position (early / middle / late): first by a turn containing
+    the canary's full content, then by a turn containing all of its
+    required tokens, then any one of them. Canaries that cannot be
+    located get no position; their probes still run against the
+    compacted output, where absence is exactly what gets measured.
+    """
+    lowered = [turn.text.lower() for turn in turns]
+    positions: dict[str, int] = {}
+    for canary in canaries:
+        content = canary.content.strip().lower()
+        tokens = [token.lower() for token in canary.required_tokens]
+        match = None
+        for index, text in enumerate(lowered):
+            if content and content in text:
+                match = index
+                break
+        if match is None and tokens:
+            for index, text in enumerate(lowered):
+                if all(token in text for token in tokens):
+                    match = index
+                    break
+        if match is None and tokens:
+            for index, text in enumerate(lowered):
+                if any(token in text for token in tokens):
+                    match = index
+                    break
+        if match is not None:
+            positions[canary.id] = match
+    by_index: dict[int, str] = {}
+    for canary_id, index in positions.items():
+        by_index.setdefault(index, canary_id)
+    session_turns = tuple(
+        Turn(turn.role, turn.text, canary_id=by_index.get(index))
+        if index in by_index
+        else turn
+        for index, turn in enumerate(turns)
+    )
+    return SeededSession(turns=session_turns, canary_positions=positions)
 
 
 def score_compacted_output(

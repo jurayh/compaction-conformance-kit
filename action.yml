@@ -11,6 +11,18 @@ inputs:
     description: "Your own compactor: 'module:Class' or 'file.py:Class'. When set, the check command is used instead of report."
     required: false
     default: ""
+  session:
+    description: "Your own transcript file (JSONL, JSON, or plain text) for check mode. Must be set together with 'canaries'."
+    required: false
+    default: ""
+  canaries:
+    description: "JSON canary definitions for your transcript, for check mode. Must be set together with 'session'."
+    required: false
+    default: ""
+  budgets:
+    description: "Budget fractions/percents to also verify in check mode, e.g. '10%,20%'. A budget overrun fails the job."
+    required: false
+    default: ""
   rounds:
     description: "Compaction rounds to run."
     required: false
@@ -43,7 +55,11 @@ runs:
       run: |
         set -o pipefail
         if [ -n "${{ inputs.spec }}" ]; then
-          compaction-kit check "${{ inputs.spec }}" --rounds "${{ inputs.rounds }}" | tee conformance-report.md
+          ARGS=""
+          if [ -n "${{ inputs.session }}" ]; then ARGS="$ARGS --session ${{ inputs.session }}"; fi
+          if [ -n "${{ inputs.canaries }}" ]; then ARGS="$ARGS --canaries ${{ inputs.canaries }}"; fi
+          if [ -n "${{ inputs.budgets }}" ]; then ARGS="$ARGS --budgets ${{ inputs.budgets }}"; fi
+          compaction-kit check "${{ inputs.spec }}" --rounds "${{ inputs.rounds }}" $ARGS | tee conformance-report.md
         else
           compaction-kit report --compactor "${{ inputs.compactor }}" --rounds "${{ inputs.rounds }}" | tee conformance-report.md
         fi

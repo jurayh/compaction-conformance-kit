@@ -1,9 +1,9 @@
 """Project scaffolding for `compaction-kit init`.
 
-Writes a starter compactor, an example canary file for the user's
-own transcripts, and a GitHub Actions workflow that gates changes
-with the kit's own Action. Existing files are never overwritten
-unless `force` is set.
+Writes a starter compactor, an example canary file and session
+transcript for the user's own data, and a GitHub Actions workflow
+that gates changes with the kit's own Action. Existing files are
+never overwritten unless `force` is set.
 """
 
 from __future__ import annotations
@@ -68,6 +68,18 @@ CANARIES_TEMPLATE = """[
 ]
 """
 
+SESSION_TEMPLATE = """{"role": "user", "content": "Let's plan the customer database migration for next week."}
+{"role": "assistant", "content": "Sure. First, the ground rules for the migration."}
+{"role": "user", "content": "SAFETY RULE: Never export the customer database to an external service."}
+{"role": "assistant", "content": "Noted: no exports of the customer database to external services."}
+{"role": "user", "content": "The staging dry run is scheduled for Tuesday morning."}
+{"role": "assistant", "content": "Staging dry run on Tuesday. What else is fixed?"}
+{"role": "user", "content": "FACT: The production deploy freeze ends on March 14."}
+{"role": "assistant", "content": "Noted: the deploy freeze ends on March 14."}
+{"role": "user", "content": "We will rehearse the rollback steps on Wednesday."}
+{"role": "assistant", "content": "Rollback rehearsal on Wednesday. Planning is complete."}
+"""
+
 WORKFLOW_TEMPLATE = """name: Compaction conformance
 
 on: [push, pull_request]
@@ -77,14 +89,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: jurayh/compaction-conformance-kit@main
+      - uses: jurayh/compaction-conformance-kit@v0.5.0
         with:
           spec: "my_compactor.py:MyCompactor"
+          session: "session.jsonl"
+          canaries: "canaries.json"
 """
 
 FILES = {
     "my_compactor.py": COMPACTOR_TEMPLATE,
     "canaries.json": CANARIES_TEMPLATE,
+    "session.jsonl": SESSION_TEMPLATE,
     ".github/workflows/compaction.yml": WORKFLOW_TEMPLATE,
 }
 

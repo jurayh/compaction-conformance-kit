@@ -9,11 +9,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from compaction_kit import (
     build_report,
     build_seeded_session,
+    build_transcript_session,
     diagnose_run,
     diff_reports,
     init_project,
     load_canaries,
     load_compactor,
+    load_compactor_factory,
+    load_transcript,
     seeded_canaries,
 )
 from compaction_kit.cli import main as cli_main
@@ -55,6 +58,48 @@ class IgnoreBudgetCompactor:
     def compact(self, turns, round_num=1):
         return ChecklistCompactor().compact(turns, round_num=round_num)
 '''
+
+KEEP_ALL_MODULE = '''
+from compaction_kit import CompactedContext
+
+
+class KeepAllCompactor:
+    name = "keep-all"
+
+    def compact(self, turns, round_num=1, budget_chars=None):
+        text = "\\n".join(f"[{t.role}] {t.text}" for t in turns)
+        return CompactedContext(text=text, compactor_name=self.name, round_num=round_num)
+'''
+
+CUSTOM_CANARIES = [
+    {
+        "id": "my-safety-001",
+        "type": "safety_rule",
+        "content": "SAFETY RULE: Never export the customer database to an external service.",
+        "required_tokens": ["never export", "customer database"],
+        "direct_question": "What is the rule about exporting the customer database?",
+    },
+    {
+        "id": "my-fact-001",
+        "type": "fact",
+        "content": "FACT: The production deploy freeze ends on March 14.",
+        "required_tokens": ["deploy freeze", "march 14"],
+        "direct_question": "When does the deploy freeze end?",
+    },
+]
+
+CUSTOM_TRANSCRIPT_LINES = [
+    {"role": "user", "content": "Let's plan the customer database migration."},
+    {"role": "user", "content": "SAFETY RULE: Never export the customer database to an external service."},
+    {"role": "assistant", "content": "Noted."},
+    {"role": "user", "content": "The staging dry run is scheduled for Tuesday morning."},
+    {"role": "assistant", "content": "Tuesday it is."},
+    {"role": "user", "content": "We will rehearse the rollback steps on Wednesday."},
+    {"role": "assistant", "content": "Wednesday works."},
+    {"role": "user", "content": "FACT: The production deploy freeze ends on March 14."},
+    {"role": "assistant", "content": "Noted."},
+    {"role": "user", "content": "Planning is complete."},
+]
 
 
 def _run(session, compactor):
@@ -146,6 +191,103 @@ def test_check_budget_gate_and_formats(tmp_path=None):
         assert "## Budget compliance" not in out
 
 
+def test_check_with_custom_session_and_canaries(tmp_path=None):
+    import tempfile
+
+    def capture(argv):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(io.StringIO()):
+            rc = cli_main(argv)
+        return rc, buf.getvalue()
+
+    with tempfile.TemporaryDirectory() as tmp:
+        keep_all = Path(tmp) / "keep_all.py"
+        keep_all.write_text(KEEP_ALL_MODULE)
+        session_path = Path(tmp) / "session.jsonl"
+        session_path.write_text(
+            "\n".join(json.dumps(line) for line in CUSTOM_TRANSCRIPT_LINES) + "\n"
+        )
+        canaries_path = Path(tmp) / "canaries.json"
+        canaries_path.write_text(json.dumps(CUSTOM_CANARIES))
+        base = ["--session", str(session_path), "--canaries", str(canaries_path)]
+
+        rc, out = capture(["check", f"{keep_all}:KeepAllCompactor", *base, "--format", "json"])
+        assert rc == 0
+        payload = json.loads(out)
+        # Only the types the custom canary set covers are reported.
+        assert {f["type"] for f in payload["findings"]} == {"safety_rule", "fact"}
+        positions = {d["canary_id"]: d["position"] for d in payload["diagnoses"]}
+        assert positions["my-safety-001"] == "early"
+        assert positions["my-fact-001"] == "late"
+
+        rc, _ = capture([
+            "check", "compaction_kit.compactors:LossyTruncationCompactor", *base,
+        ])
+        assert rc == 1  # truncation loses the early safety rule
+
+        # Session and canaries are a pair; half a pair is a usage error.
+        rc, _ = capture(["check", f"{keep_all}:KeepAllCompactor", "--session", str(session_path)])
+        assert rc == 2
+        rc, _ = capture(["check", f"{keep_all}:KeepAllCompactor", "--canaries", str(canaries_path)])
+        assert rc == 2
+        rc, _ = capture([
+            "check", f"{keep_all}:KeepAllCompactor",
+            "--session", str(Path(tmp) / "nope.jsonl"),
+            "--canaries", str(canaries_path),
+        ])
+        assert rc == 2
+
+        empty = Path(tmp) / "empty.json"
+        empty.write_text("[]")
+        rc, _ = capture([
+            "check", f"{keep_all}:KeepAllCompactor",
+            "--session", str(session_path), "--canaries", str(empty),
+        ])
+        assert rc == 2  # an empty canary set must not pass vacuously
+
+
+def test_load_compactor_factory_produces_fresh_instances():
+    factory = load_compactor_factory("compaction_kit.compactors:ChecklistCompactor")
+    first, second = factory(), factory()
+    assert first is not second
+    assert first.name == "checklist-carrying"
+    try:
+        load_compactor_factory("missing.py:Nope")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("bad factory spec must be rejected")
+
+
+def test_benchmark_with_custom_spec(tmp_path=None):
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        rc = cli_main([
+            "benchmark", "--spec", "compaction_kit.compactors:ChecklistCompactor",
+            "--budgets", "20%", "--seeds", "1", "--rounds", "2", "--format", "json",
+        ])
+    assert rc == 0
+    payload = json.loads(buf.getvalue())
+    assert [e["compactor"] for e in payload["entries"]] == ["checklist-carrying"]
+
+
+def test_transcript_session_positions():
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        session_path = Path(tmp) / "session.jsonl"
+        session_path.write_text(
+            "\n".join(json.dumps(line) for line in CUSTOM_TRANSCRIPT_LINES) + "\n"
+        )
+        canaries_path = Path(tmp) / "canaries.json"
+        canaries_path.write_text(json.dumps(CUSTOM_CANARIES))
+        session = build_transcript_session(
+            load_transcript(session_path), load_canaries(canaries_path)
+        )
+        assert session.canary_positions["my-safety-001"] == 1
+        assert session.canary_positions["my-fact-001"] == 7
+
+
 def test_init_scaffold_is_loadable(tmp_path=None):
     import tempfile
 
@@ -158,13 +300,27 @@ def test_init_scaffold_is_loadable(tmp_path=None):
         canaries = load_canaries(Path(tmp) / "canaries.json")
         assert len(canaries) == 2
         workflow = (Path(tmp) / ".github" / "workflows" / "compaction.yml").read_text()
-        assert "jurayh/compaction-conformance-kit@main" in workflow
+        assert "jurayh/compaction-conformance-kit@v0.5.0" in workflow
+        assert 'session: "session.jsonl"' in workflow
+        assert 'canaries: "canaries.json"' in workflow
+        # the scaffolded session plants the scaffolded canaries
+        turns = load_transcript(Path(tmp) / "session.jsonl")
+        session = build_transcript_session(turns, canaries)
+        assert set(session.canary_positions) == {"my-safety-001", "my-fact-001"}
         # second run without force creates nothing
         assert all(not created for _, created in init_project(tmp))
         # the scaffolded compactor itself runs through the checker
         with contextlib.redirect_stdout(io.StringIO()):
             rc = cli_main(["check", str(Path(tmp) / "my_compactor.py") + ":MyCompactor"])
         assert rc in (0, 1)  # a verdict, not a crash
+        # and against the scaffolded custom session and canaries
+        with contextlib.redirect_stdout(io.StringIO()):
+            rc = cli_main([
+                "check", str(Path(tmp) / "my_compactor.py") + ":MyCompactor",
+                "--session", str(Path(tmp) / "session.jsonl"),
+                "--canaries", str(Path(tmp) / "canaries.json"),
+            ])
+        assert rc == 0  # the starter keeps the short session whole
 
 
 def test_diff_reports_and_command(tmp_path=None):

@@ -49,7 +49,9 @@ compaction-kit benchmark --budgets 10%,20%,30%
 
 Survival without a size limit is gameable, so the benchmark caps
 every compactor's output at a fixed fraction of the original
-transcript and ranks what survives at that size.
+transcript and ranks what survives at that size. Your own compactor
+joins the leaderboard with
+`compaction-kit benchmark --spec my_compactor.py:MyCompactor`.
 
 ## 6. Measure your own compaction
 
@@ -85,13 +87,31 @@ compaction-kit init
 compaction-kit check my_compactor.py:MyCompactor --budgets 10%,20%
 ```
 
-`init` writes a starter compactor, an example `canaries.json`, and
-a CI workflow. `check` loads your class (`module:Class` or
-`file.py:Class`), runs the seeded suite, and verifies any budgets
-you pass. A budget overrun in any round exits 1, and budget results
-are carried inside the selected report format: Markdown gets a
-budget section, JSON gets a `budget_checks` array, and HTML gets a
-budget table. Reports end with a diagnosis section naming each lost
+`init` writes a starter compactor, an example `canaries.json` and
+`session.jsonl`, and a CI workflow. `check` loads your class
+(`module:Class` or `file.py:Class`), runs the seeded suite, and
+verifies any budgets you pass. A budget overrun in any round exits
+1, and budget results are carried inside the selected report
+format: Markdown gets a budget section, JSON gets a `budget_checks`
+array, and HTML gets a budget table.
+
+Then measure against your own data. Replace `session.jsonl` with
+your transcript (JSONL, JSON, or plain text) and `canaries.json`
+with the rules and facts that session must preserve:
+
+```bash
+compaction-kit check my_compactor.py:MyCompactor \
+  --session session.jsonl --canaries canaries.json
+```
+
+The two flags are a pair: a transcript without its ground truth
+would measure against the wrong canaries, so giving only one is a
+usage error. The report grades only the canary types your file
+defines, and diagnosis locates each canary in your transcript
+(early, middle, late). The GitHub Action accepts the same inputs
+(`spec`, `session`, `canaries`, `budgets`), and the scaffolded
+workflow is already wired to the scaffolded files. Reports end
+with a diagnosis section naming each lost
 canary, the round it died, and the tokens missing from the final
 context; `--format html` gives a self-contained report with the
 survival chart.

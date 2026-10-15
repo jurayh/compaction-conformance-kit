@@ -314,7 +314,25 @@ or `file.py:Class`), runs the seeded suite, and with `--budgets
 10%,20%` also verifies budget compliance. A budget overrun in any
 round fails the command with exit 1, and the budget results are
 included in whichever report format you select rather than appended
-as extra text. Reports include a
+as extra text.
+
+The seeded suite is only the starter ground truth. Point `check`
+at your own session instead:
+
+```bash
+compaction-kit check my_compactor.py:MyCompactor \
+  --session session.jsonl --canaries canaries.json
+```
+
+The transcript may be JSONL, JSON, or plain text; the canaries are
+the rules and facts that session must preserve, and the report only
+grades the canary types your file defines. `init` scaffolds an
+example pair so the loop works out of the box, and the GitHub
+Action accepts the same `session`, `canaries`, and `budgets`
+inputs. Your compactor can also join the fixed-budget leaderboard
+directly: `compaction-kit benchmark --spec my_compactor.py:MyCompactor`.
+
+Reports include a
 **diagnosis** section: for every lost canary, the round it died,
 its position in the transcript, the exact tokens missing from the
 final context, and any stale superseded values still carried.
