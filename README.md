@@ -393,7 +393,7 @@ protocol, a new probe implements `probe(canary, context_text)`.
 
 ## Status
 
-v0.4 release. Python 3.11+, zero dependencies, zero model spend for
+v0.5 release. Python 3.11+, zero dependencies, zero model spend for
 the default path. MIT license. The 0.3.0 release adds the fixed-budget
 benchmark and external adapters, including a LangChain-style
 progressive summarizer and scoring for compacted output produced by
@@ -407,7 +407,12 @@ diagnosis with HTML reports, and a GitHub Action. The 0.4.1 patch
 makes `check --budgets` a real gate: a budget overrun in any round
 exits 1, budget results are carried inside the selected report
 format (a `budget_checks` array in JSON), and the progressive
-summary adapter validates its tuning parameters.
+summary adapter validates its tuning parameters. The 0.5.0 release
+adds the custom-data workflow: `check --session --canaries` runs
+your compactor against your own transcript and canary definitions,
+`benchmark --spec` puts your compactor on the fixed-budget
+leaderboard, the GitHub Action accepts `session`, `canaries`, and
+`budgets` inputs, and `init` scaffolds a working session file.
 
 Not a compaction fix. A measurement. Fixes are easier to trust once
 something independent can say what they preserve, and what they lose.
