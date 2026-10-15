@@ -402,7 +402,7 @@ protocol, a new probe implements `probe(canary, context_text)`.
 
 ## Status
 
-v0.5 release. Python 3.11+, zero dependencies, zero model spend for
+v0.6 release. Python 3.11+, zero dependencies, zero model spend for
 the default path. MIT license. The 0.3.0 release adds the fixed-budget
 benchmark and external adapters, including a LangChain-style
 progressive summarizer and scoring for compacted output produced by
@@ -421,7 +421,12 @@ adds the custom-data workflow: `check --session --canaries` runs
 your compactor against your own transcript and canary definitions,
 `benchmark --spec` puts your compactor on the fixed-budget
 leaderboard, the GitHub Action accepts `session`, `canaries`, and
-`budgets` inputs, and `init` scaffolds a working session file.
+`budgets` inputs, and `init` scaffolds a working session file. The
+0.6.0 release adds a pytest plugin: installing the kit registers
+`compactor` and `compaction_report` fixtures and the
+`@pytest.mark.compaction` marker, and `compaction_kit.testing`
+provides `check_compactor` plus assertion helpers whose failures
+carry the per-canary diagnosis.
 
 Not a compaction fix. A measurement. Fixes are easier to trust once
 something independent can say what they preserve, and what they lose.
