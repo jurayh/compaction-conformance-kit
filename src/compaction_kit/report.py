@@ -8,6 +8,7 @@ from .canaries import Canary, CanaryType
 from .diagnosis import CanaryDiagnosis, diagnose_run, diagnosis_to_markdown
 from .runner import ConformanceRun
 from .session import SeededSession
+from .versioning import SCHEMA_VERSION, kit_version
 
 FLAG_BELOW = 0.50   # flag any type falling below 50% survival
 SILENT_ABOVE = 0.90  # stay silent on types above 90% after round 1
@@ -75,6 +76,11 @@ class ConformanceReport:
     budget_checks: list[BudgetCheck] = field(default_factory=list)
 
     @property
+    def rounds(self) -> int:
+        """Compaction rounds measured (the longest survival curve)."""
+        return max((len(f.curve) for f in self.findings), default=0)
+
+    @property
     def budget_compliant(self) -> bool:
         """True when every attached budget check stayed within budget."""
         return all(check.compliant for check in self.budget_checks)
@@ -103,7 +109,10 @@ class ConformanceReport:
 
     def to_dict(self) -> dict:
         payload = {
+            "schema_version": SCHEMA_VERSION,
+            "kit_version": kit_version(),
             "compactor": self.compactor_name,
+            "rounds": self.rounds,
             "thresholds": {"flag_below": FLAG_BELOW, "silent_above": SILENT_ABOVE},
             "findings": [
                 {

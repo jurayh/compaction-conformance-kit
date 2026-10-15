@@ -23,6 +23,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 
 from .canaries import CanaryType
+from .versioning import SCHEMA_VERSION, kit_version
 from .compactors import Compactor, _turns_to_text
 from .corpus import build_random_session
 from .runner import run_conformance
@@ -193,6 +194,8 @@ def run_budget_benchmark(
 
     entries.sort(key=lambda entry: (entry["budget_fraction"], entry["rank"]))
     return {
+        "schema_version": SCHEMA_VERSION,
+        "kit_version": kit_version(),
         "budgets": list(budgets),
         "seeds": list(seeds),
         "rounds": rounds,

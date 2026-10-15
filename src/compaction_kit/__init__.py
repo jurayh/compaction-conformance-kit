@@ -36,6 +36,7 @@ from .semantic import SemanticChecklistCompactor
 from .semantic_corpus import build_semantic_heldout_session, build_semantic_session
 from .session import SeededSession, Turn, build_seeded_session
 from .simulated_agent import SimulatedAgent, SimulatedAnswer
+from .versioning import SCHEMA_VERSION, kit_version
 from .testing import (
     assert_budget_compliant,
     assert_no_flags,
@@ -50,6 +51,7 @@ from .transcripts import (
 )
 
 __all__ = [
+    "SCHEMA_VERSION",
     "BehaviorProbe",
     "BudgetCheck",
     "BudgetRoundResult",
@@ -93,6 +95,7 @@ __all__ = [
     "diagnose_run",
     "diff_reports",
     "init_project",
+    "kit_version",
     "load_canaries",
     "load_compactor",
     "load_compactor_factory",

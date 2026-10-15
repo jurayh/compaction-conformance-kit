@@ -31,6 +31,15 @@ echo $?   # 0 = clean, 1 = flagged or late cliff
 off a cliff in a later round, so a compaction change that starts
 forgetting safety rules fails the build.
 
+Report and benchmark JSON carry `schema_version` (currently 1),
+`kit_version`, and `rounds`, so saved artifacts say which format
+they use and which kit produced them. The compatibility policy:
+within a schema version, fields are only added, never renamed,
+removed, or re-typed, and consumers should ignore fields they do
+not know. A breaking change bumps `schema_version`. `diff` reads
+only `findings`, so it accepts reports from any kit release,
+versioned or not.
+
 ## 4. Check it is not one lucky session
 
 ```bash
