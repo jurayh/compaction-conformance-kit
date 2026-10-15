@@ -36,6 +36,12 @@ from .semantic import SemanticChecklistCompactor
 from .semantic_corpus import build_semantic_heldout_session, build_semantic_session
 from .session import SeededSession, Turn, build_seeded_session
 from .simulated_agent import SimulatedAgent, SimulatedAnswer
+from .testing import (
+    assert_budget_compliant,
+    assert_no_flags,
+    assert_type_survival,
+    check_compactor,
+)
 from .transcripts import (
     build_transcript_session,
     load_canaries,
@@ -72,6 +78,9 @@ __all__ = [
     "SummaryTailCompactor",
     "Turn",
     "UpdateAwareChecklistCompactor",
+    "assert_budget_compliant",
+    "assert_no_flags",
+    "assert_type_survival",
     "build_random_session",
     "build_semantic_heldout_session",
     "build_semantic_session",
@@ -80,6 +89,7 @@ __all__ = [
     "build_transcript_session",
     "budget_benchmark_to_markdown",
     "budget_check_from_run",
+    "check_compactor",
     "diagnose_run",
     "diff_reports",
     "init_project",

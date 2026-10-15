@@ -129,6 +129,41 @@ Exit 1 means a regression: a type newly flagged, a new or earlier
 cliff, or a survival drop of 25 points or more. The repo's GitHub
 Action (`action.yml`) runs the same gate in CI.
 
+## 10. Or gate it from pytest
+
+Installing the kit registers a pytest plugin. Define your compactor
+once, in `conftest.py`:
+
+```python
+import pytest
+from my_compactor import MyCompactor
+
+@pytest.fixture
+def compactor():
+    return MyCompactor()
+```
+
+Then the gate is a test:
+
+```python
+import pytest
+from compaction_kit.testing import assert_no_flags
+
+@pytest.mark.compaction(rounds=5, budget_fraction=0.20)
+def test_compaction_gate(compaction_report):
+    assert_no_flags(compaction_report)
+```
+
+`compaction_report` runs your `compactor` fixture through the
+seeded suite; the marker tunes rounds and adds a budget check.
+Failures name the flagged types, the lost canaries, and the missing
+tokens. The helpers also work without the fixtures:
+`check_compactor(compactor, rounds=5, budget_fraction=0.2)` returns
+a report, and `assert_no_flags`, `assert_budget_compliant`, and
+`assert_type_survival` turn verdicts into test failures. Fixtures
+for the raw materials are included too: `seeded_session` and
+`seeded_canaries`.
+
 Runnable version: [../examples/measure_your_compactor.py](../examples/measure_your_compactor.py).
 Swap the toy summarizer for your LLM call or your framework's compact
 function; the probes, rounds, and report stay the same.

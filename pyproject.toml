@@ -34,6 +34,9 @@ dependencies = []
 [project.scripts]
 compaction-kit = "compaction_kit.cli:main"
 
+[project.entry-points."pytest11"]
+compaction_kit = "compaction_kit.pytest_plugin"
+
 [project.urls]
 Homepage = "https://github.com/jurayh/compaction-conformance-kit"
 Repository = "https://github.com/jurayh/compaction-conformance-kit"

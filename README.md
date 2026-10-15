@@ -342,6 +342,13 @@ two report JSON files and exits 1 on regressions, and the repo
 ships a GitHub Action (`action.yml`) that runs the gate in CI and
 posts the report as a job summary.
 
+If your suite is pytest, the gate can live there instead:
+installing the kit registers a plugin, so a `compactor` fixture in
+your `conftest.py` plus a `compaction_report` fixture (tuned by
+`@pytest.mark.compaction(rounds=5, budget_fraction=0.20)`) gives
+you conformance as a test, with assertion helpers in
+`compaction_kit.testing` whose failures name the lost canaries.
+
 ## The spike gate
 
 This kit exists only because it passed a kill criterion set before the
@@ -366,6 +373,8 @@ breaks the separation breaks the build.
 | `src/compaction_kit/adapters.py` | External-pattern adapters: LangChain-style progressive summary, and replay of precomputed output |
 | `src/compaction_kit/transcripts.py` | External transcript loading, custom canary loading, and scoring of externally produced output |
 | `src/compaction_kit/loading.py` | Load a user compactor from a `module:Class` or `file.py:Class` specification |
+| `src/compaction_kit/testing.py` | Test-suite helpers: `check_compactor` plus assertion helpers with diagnosis-rich failures |
+| `src/compaction_kit/pytest_plugin.py` | Pytest plugin (pytest11 entry point): `compactor` / `compaction_report` fixtures and the `compaction` marker |
 | `src/compaction_kit/diagnosis.py` | Per-canary diagnosis: lost round, position, missing tokens, stale values |
 | `src/compaction_kit/diffing.py` | Report comparison and regression detection for `compaction-kit diff` |
 | `src/compaction_kit/scaffold.py` | Project scaffolding for `compaction-kit init` |
