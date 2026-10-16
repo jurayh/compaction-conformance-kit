@@ -374,6 +374,7 @@ breaks the separation breaks the build.
 | `src/compaction_kit/transcripts.py` | External transcript loading, custom canary loading, and scoring of externally produced output |
 | `src/compaction_kit/loading.py` | Load a user compactor from a `module:Class` or `file.py:Class` specification |
 | `src/compaction_kit/versioning.py` | JSON schema version (`SCHEMA_VERSION`) and kit version for report and benchmark payloads |
+| `src/compaction_kit/generated.py` | Generated rotating corpus: sampled subjects, paraphrases, fresh values, updates, and distractors per seed |
 | `src/compaction_kit/testing.py` | Test-suite helpers: `check_compactor` plus assertion helpers with diagnosis-rich failures |
 | `src/compaction_kit/pytest_plugin.py` | Pytest plugin (pytest11 entry point): `compactor` / `compaction_report` fixtures and the `compaction` marker |
 | `src/compaction_kit/diagnosis.py` | Per-canary diagnosis: lost round, position, missing tokens, stale values |

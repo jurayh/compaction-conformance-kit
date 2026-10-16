@@ -36,6 +36,7 @@ from .adapters import ProgressiveSummaryCompactor
 from .benchmark import budget_benchmark_to_markdown, run_budget_benchmark
 from .canaries import seeded_canaries
 from .corpus import build_random_session
+from .generated import build_generated_session
 from .diffing import diff_reports
 from .loading import load_compactor, load_compactor_factory
 from .report import build_report, budget_check_from_run
@@ -119,7 +120,11 @@ def _cmd_check(args) -> int:
         budgets = _parse_budgets(args.budgets) if args.budgets else []
         if bool(args.session) != bool(args.canaries):
             raise ValueError("--session and --canaries must be given together")
-        if args.session:
+        if args.generated_seed is not None and (args.session or args.canaries):
+            raise ValueError("--generated-seed cannot be combined with --session/--canaries")
+        if args.generated_seed is not None:
+            session, canaries = build_generated_session(args.generated_seed)
+        elif args.session:
             turns = load_transcript(args.session)
             canaries = load_canaries(args.canaries)
             if not turns:
@@ -181,8 +186,14 @@ def _cmd_diff(args) -> int:
 
 def _cmd_corpus(args) -> int:
     seeds = _parse_seeds(args.seeds)
+    builder = build_generated_session if args.generated else build_random_session
     names = list(COMPACTORS) if args.compactor == "all" else [args.compactor]
-    out: dict = {"seeds": seeds, "rounds": args.rounds, "by_compactor": {}}
+    out: dict = {
+        "seeds": seeds,
+        "rounds": args.rounds,
+        "corpus_kind": "generated" if args.generated else "randomized",
+        "by_compactor": {},
+    }
     for name in names:
         r1: dict[str, list[float]] = defaultdict(list)
         r5: dict[str, list[float]] = defaultdict(list)
@@ -190,7 +201,7 @@ def _cmd_corpus(args) -> int:
             lambda: {"n": 0, "latest": 0, "stale": 0, "both": 0, "stale_only": 0}
         )
         for seed in seeds:
-            session, canaries = build_random_session(seed)
+            session, canaries = builder(seed)
             run = run_conformance(session, COMPACTORS[name](), rounds=args.rounds, canaries=canaries)
             report = build_report(run)
             for f in report.findings:
@@ -297,6 +308,7 @@ def main(argv: list[str] | None = None) -> int:
     p_corpus.add_argument("--compactor", choices=["all", *COMPACTORS], default="all")
     p_corpus.add_argument("--seeds", default="1-12", help="e.g. 1-12 or 1,3,5")
     p_corpus.add_argument("--rounds", type=_positive_int, default=5)
+    p_corpus.add_argument("--generated", action="store_true", help="use the generated rotating corpus (fresh subjects, paraphrases, distractors) instead of the randomized corpus")
     p_corpus.set_defaults(fn=_cmd_corpus)
 
     p_benchmark = sub.add_parser(
@@ -325,6 +337,7 @@ def main(argv: list[str] | None = None) -> int:
     p_check.add_argument("spec", help="'module:Class' or 'path/to/file.py:Class'")
     p_check.add_argument("--session", default=None, help="your own transcript (JSONL, JSON, or plain text); requires --canaries")
     p_check.add_argument("--canaries", default=None, help="JSON canary definitions for your transcript; requires --session")
+    p_check.add_argument("--generated-seed", type=int, default=None, help="grade against a generated rotating session for this seed instead of the seeded session")
     p_check.add_argument("--rounds", type=_positive_int, default=5)
     p_check.add_argument("--budgets", default=None, help="optional budget fractions/percents to also verify, e.g. 10%,20%")
     p_check.add_argument("--format", choices=["md", "json", "html"], default="md")

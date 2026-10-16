@@ -23,6 +23,10 @@ inputs:
     description: "Budget fractions/percents to also verify in check mode, e.g. '10%,20%'. A budget overrun fails the job."
     required: false
     default: ""
+  generated-seed:
+    description: "Check mode only: grade against a generated rotating session for this seed instead of the seeded session. Rotate it (e.g. by week) so the gate cannot be tuned to a fixed session."
+    required: false
+    default: ""
   rounds:
     description: "Compaction rounds to run."
     required: false
@@ -59,6 +63,7 @@ runs:
           if [ -n "${{ inputs.session }}" ]; then ARGS="$ARGS --session ${{ inputs.session }}"; fi
           if [ -n "${{ inputs.canaries }}" ]; then ARGS="$ARGS --canaries ${{ inputs.canaries }}"; fi
           if [ -n "${{ inputs.budgets }}" ]; then ARGS="$ARGS --budgets ${{ inputs.budgets }}"; fi
+          if [ -n "${{ inputs.generated-seed }}" ]; then ARGS="$ARGS --generated-seed ${{ inputs.generated-seed }}"; fi
           compaction-kit check "${{ inputs.spec }}" --rounds "${{ inputs.rounds }}" $ARGS | tee conformance-report.md
         else
           compaction-kit report --compactor "${{ inputs.compactor }}" --rounds "${{ inputs.rounds }}" | tee conformance-report.md

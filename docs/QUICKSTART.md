@@ -50,6 +50,14 @@ Twelve randomized sessions (fresh values, shuffled positions), JSON
 medians out. If a compactor only survives the seeded session, this is
 where it shows.
 
+For a corpus a compactor cannot be tuned to at all, add
+`--generated`: sessions built from a rotating pool of 20 subjects
+with three paraphrases each, fresh values, mid-session updates, and
+distractor statements that look like canaries but are not graded.
+`check` can grade a single generated session with
+`--generated-seed N`, which is the rotation to use in CI: change the
+seed on a schedule and failures still reproduce from the seed alone.
+
 ## 5. Compare at a fixed budget
 
 ```bash

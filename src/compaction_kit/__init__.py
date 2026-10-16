@@ -19,6 +19,7 @@ from .compactors import (
     UpdateAwareChecklistCompactor,
 )
 from .corpus import build_random_session, position_bucket
+from .generated import build_generated_session
 from .diagnosis import CanaryDiagnosis, diagnose_run
 from .diffing import ReportDiff, diff_reports
 from .loading import load_compactor, load_compactor_factory
@@ -83,6 +84,7 @@ __all__ = [
     "assert_budget_compliant",
     "assert_no_flags",
     "assert_type_survival",
+    "build_generated_session",
     "build_random_session",
     "build_semantic_heldout_session",
     "build_semantic_session",
