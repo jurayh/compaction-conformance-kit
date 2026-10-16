@@ -404,7 +404,7 @@ protocol, a new probe implements `probe(canary, context_text)`.
 
 ## Status
 
-v0.7 release. Python 3.11+, zero dependencies, zero model spend for
+v0.8 release. Python 3.11+, zero dependencies, zero model spend for
 the default path. MIT license. The 0.3.0 release adds the fixed-budget
 benchmark and external adapters, including a LangChain-style
 progressive summarizer and scoring for compacted output produced by
@@ -432,7 +432,13 @@ carry the per-canary diagnosis. The 0.7.0 release versions the
 JSON output: report and benchmark payloads carry `schema_version`,
 `kit_version`, and `rounds`, under a stated compatibility policy
 (fields are only added within a schema version; `diff` accepts
-reports from any release, versioned or not).
+reports from any release, versioned or not). The 0.8.0 release
+adds the generated rotating corpus: sessions built per seed from a
+pool of 20 subjects with paraphrases, fresh values, mid-session
+updates, and distractor statements, so the measurement cannot be
+tuned to a fixed session. Use it with `corpus --generated`,
+`check --generated-seed N`, or the Action's `generated-seed`
+input.
 
 Not a compaction fix. A measurement. Fixes are easier to trust once
 something independent can say what they preserve, and what they lose.
